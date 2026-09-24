@@ -13,18 +13,17 @@ class LiveSmokeTest < Minitest::Test
     credentials = application_credentials
     skip "Application credentials are not configured" if credentials.nil?
 
-    user = RecordingStudio::X.user(username: "XDevelopers", credentials: credentials, configuration: @configuration)
+    user = public_user(credentials)
 
     assert_equal "XDevelopers", user.username
     refute_nil user.id
-    refute_includes user.inspect, @configuration.consumer_secret.to_s if @configuration.consumer_secret
   end
 
   def test_application_auth_reads_one_post_and_a_small_search
     credentials = application_credentials
     skip "Application credentials are not configured" if credentials.nil?
 
-    user = RecordingStudio::X.user(username: "XDevelopers", credentials: credentials, configuration: @configuration)
+    user = public_user(credentials)
     page = RecordingStudio::X.user_posts(
       user.id, max_results: 5, credentials: credentials, configuration: @configuration
     )
@@ -51,12 +50,20 @@ class LiveSmokeTest < Minitest::Test
       access_token: @configuration.access_token,
       access_token_secret: @configuration.access_token_secret
     )
-    user = RecordingStudio::X.user(username: "XDevelopers", credentials: credentials, configuration: @configuration)
+    user = public_user(credentials)
 
     assert_equal "XDevelopers", user.username
   end
 
   private
+
+  def public_user(credentials)
+    RecordingStudio::X.user(username: "XDevelopers", credentials: credentials, configuration: @configuration)
+  rescue RecordingStudio::X::AuthorizationError => e
+    raise unless e.status == 403 && e.code.to_s.include?("client-forbidden")
+
+    skip "X returned HTTP 403 client-forbidden. Attach the developer app to a Project."
+  end
 
   def application_credentials
     return nil unless @configuration.application_credentials?

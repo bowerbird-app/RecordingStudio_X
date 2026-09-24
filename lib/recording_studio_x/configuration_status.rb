@@ -29,7 +29,6 @@ module RecordingStudio
 
       def default_credentials
         return application_credentials if application_credentials?
-        return user_oauth1_credentials if oauth1_user_configured?
 
         nil
       end
@@ -86,15 +85,6 @@ module RecordingStudio
           bearer_token: @bearer_token,
           consumer_key: @consumer_key,
           consumer_secret: @consumer_secret
-        )
-      end
-
-      def user_oauth1_credentials
-        Credentials.oauth1(
-          consumer_key: @consumer_key,
-          consumer_secret: @consumer_secret,
-          access_token: @access_token,
-          access_token_secret: @access_token_secret
         )
       end
     end
