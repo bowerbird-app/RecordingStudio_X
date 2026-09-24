@@ -187,7 +187,7 @@ Each registration sets `read_only` true, `destructive` false, `requires_confirma
 | `token_url` | `https://api.x.com/2/oauth2/token` |
 | `identity_endpoint` | `GET /2/users/me` |
 | `pkce` | `S256` |
-| `sign_in_scopes` | `tweet.read`, `users.read`, `offline.access` |
+| `sign_in_scopes` | `tweet.read`, `users.read`, `users.email`, `offline.access` |
 | `connect_scopes` | sign-in scopes plus `tweet.write`, `like.read`, `like.write`, `follows.read`, `follows.write` |
 
 The host owns redirects, `state`, the callback session, encrypted storage, and which Recording Studio user owns the connection. This gem builds the authorize URL, exchanges the code, and refreshes the token.
@@ -211,21 +211,25 @@ tokens = RecordingStudio::X.refresh(refresh_token: tokens.refresh_token)
 
 ## Continue with X
 
-`RecordingStudio::X.identity` calls `GET /2/users/me` with user credentials and returns an `Identity`.
+`RecordingStudio::X.identity` calls `GET /2/users/me` with user credentials and returns an `Identity`. `provider` is `:x`.
 
 ```ruby
-identity.provider    # :x
+identity.provider
 identity.uid
 identity.username
 identity.name
 identity.image_url
-identity.email       # confirmed_email, then email, when X sent one
+identity.email
 identity.raw
 ```
 
-Recording Studio Users signs people in through OmniAuth. It has no provider registry. The host lists `:x` in `omniauth_providers`. If `OmniAuth::Strategies::OAuth2` is defined, the engine loads `OmniAuth::Strategies::X` with name `:x`, PKCE, and the sign-in scopes. Add `omniauth-oauth2` in the host. It is not a dependency of this gem.
+Recording Studio Users 0.12.2 signs people in through OmniAuth. `RecordingStudioUser::OmniauthCallbacksController` defines a callback action only for each key in `RecordingStudioUser::Omniauth::PROVIDER_LABELS`. Those keys are `google_oauth2`, `microsoft_graph`, `apple`, `linkedin`, and `instagram`. Adding `:x` to `omniauth_providers` does not create an `x` action. Continue with X inside Users needs `:x` in `PROVIDER_LABELS` and in that callback loop. That change belongs in Recording Studio Users.
 
-Users creates an account from a verified email. X omits email unless the authorization includes `users.email` and the person has a confirmed address. This gem returns `email` when X sends `confirmed_email` or `email`. It does not invent an email and it does not create a Recording Studio user. The Users gem still decides whether a missing email can sign in.
+When `OmniAuth::Strategies::OAuth2` is defined, the engine loads `OmniAuth::Strategies::X`. The strategy name is `:x`. It uses PKCE and `RecordingStudio::X::Oauth::SIGN_IN_SCOPES`. Those scopes include `users.email`. The host adds the `omniauth-oauth2` gem. `recording_studio_x.gemspec` leaves it out.
+
+`Identity.auth_info` builds the OmniAuth `info` hash from the `GET /2/users/me` user object. `email` comes from `confirmed_email`, and from `email` when `confirmed_email` is blank. `email_verified` is true when that address is present. The key is absent when X sends no address. Users treats an explicit `false` as an unverified email and raises `UnverifiedEmailError`. `name` is the X display name. Users splits `name` into `first_name` and `last_name` when those keys are absent.
+
+`Identity#email` uses the same address. Recording Studio Users creates the user. Users raises `MissingEmailError` on a first login when `info.email` is blank. X returns `confirmed_email` only when the token includes `users.email` and the account has a confirmed address.
 
 ## Connected account calls
 

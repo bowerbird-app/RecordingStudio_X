@@ -9,9 +9,10 @@ module RecordingStudio
     module Oauth
       AUTHORIZE_URL = "https://x.com/i/oauth2/authorize"
       TOKEN_PATH = "/2/oauth2/token"
-      SIGN_IN_SCOPES = %w[tweet.read users.read offline.access].freeze
+      SIGN_IN_SCOPES = %w[tweet.read users.read users.email offline.access].freeze
       CONNECT_SCOPES = %w[
-        tweet.read tweet.write users.read like.read like.write follows.read follows.write offline.access
+        tweet.read tweet.write users.read users.email like.read like.write
+        follows.read follows.write offline.access
       ].freeze
 
       module_function

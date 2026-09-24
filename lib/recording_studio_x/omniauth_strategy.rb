@@ -16,21 +16,14 @@ module OmniAuth
 
       uid { raw_info["id"] }
 
-      info do
-        {
-          name: raw_info["name"],
-          nickname: raw_info["username"],
-          image: raw_info["profile_image_url"]
-        }
-      end
+      info { RecordingStudio::X::Identity.auth_info(raw_info) }
 
       extra do
         { raw_info: raw_info }
       end
 
       def raw_info
-        path = "/2/users/me?user.fields=id,name,username,profile_image_url,description"
-        @raw_info ||= access_token.get(path).parsed.fetch("data")
+        @raw_info ||= access_token.get(RecordingStudio::X::Identity.me_path).parsed.fetch("data")
       end
 
       def callback_url

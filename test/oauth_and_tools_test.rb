@@ -36,7 +36,7 @@ class OauthAndToolsTest < Minitest::Test
     assert_includes url, "client_id=client-id"
     assert_includes url, "code_challenge=challenge"
     assert_includes url, "code_challenge_method=S256"
-    assert_includes url, "scope=tweet.read%20users.read%20offline.access"
+    assert_includes url, "scope=tweet.read%20users.read%20users.email%20offline.access"
     refute_includes url, "client-secret"
   end
 
@@ -107,7 +107,9 @@ class OauthAndToolsTest < Minitest::Test
     assert_equal "https://api.x.com/2/oauth2/token", provider["token_url"]
     assert_equal "GET /2/users/me", provider["identity_endpoint"]
     assert_equal "S256", provider["pkce"]
+    assert_includes provider["sign_in_scopes"], "users.email"
     assert_includes provider["sign_in_scopes"], "offline.access"
+    assert_includes provider["connect_scopes"], "users.email"
     assert_includes provider["connect_scopes"], "tweet.write"
   end
 
@@ -127,6 +129,43 @@ class OauthAndToolsTest < Minitest::Test
     assert_equal false, create_post.implemented
     assert_includes create_post.scopes, "tweet.write"
     assert_equal false, RecordingStudio::X.capability(:identity).allows?(:application)
+    assert_includes RecordingStudio::X.capability(:identity).scopes, "users.email"
+  end
+
+  def test_auth_info_exposes_the_email_fields_users_reads
+    raw = {
+      "id" => "1", "name" => "Ada Lovelace", "username" => "ada",
+      "profile_image_url" => "https://pbs.twimg.com/a.jpg",
+      "confirmed_email" => " ada@example.test "
+    }
+    info = RecordingStudio::X::Identity.auth_info(raw)
+
+    assert_equal "Ada Lovelace", info[:name]
+    assert_equal "ada", info[:nickname]
+    assert_equal "https://pbs.twimg.com/a.jpg", info[:image]
+    assert_equal "ada@example.test", info[:email]
+    assert_equal true, info[:email_verified]
+    refute info.key?(:first_name)
+    assert_includes RecordingStudio::X::Identity.me_path, "confirmed_email"
+    assert_equal "ada@example.test", RecordingStudio::X::Identity.from_user(
+      RecordingStudio::X::User.from_payload(raw), raw
+    ).email
+  end
+
+  def test_auth_info_uses_email_when_confirmed_email_is_blank
+    info = RecordingStudio::X::Identity.auth_info("email" => "ada@example.test", "confirmed_email" => "")
+
+    assert_equal "ada@example.test", info[:email]
+    assert_equal true, info[:email_verified]
+  end
+
+  def test_auth_info_omits_verification_when_x_sends_no_address
+    info = RecordingStudio::X::Identity.auth_info(
+      "name" => "Ada", "username" => "ada", "confirmed_email" => " ", "email" => ""
+    )
+
+    refute info.key?(:email)
+    refute info.key?(:email_verified)
   end
 
   def test_ai_tools_are_read_only_and_return_plain_results

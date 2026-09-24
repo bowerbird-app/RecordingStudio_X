@@ -62,7 +62,7 @@ module RecordingStudio
                           endpoint: "GET /2/users/:id"),
         define(:get_user_posts, access: :read, authentication: %i[application user], scopes: USER_READ,
                                 endpoint: "GET /2/users/:id/tweets"),
-        define(:identity, access: :read, authentication: :user, scopes: USER_READ,
+        define(:identity, access: :read, authentication: :user, scopes: USER_READ + %w[users.email],
                           endpoint: "GET /2/users/me"),
         define(:create_post, access: :write, authentication: :user, scopes: POST_WRITE,
                              endpoint: "POST /2/tweets", implemented: false),
