@@ -46,6 +46,33 @@ class XApiTest < Minitest::Test
     assert_equal "Hello", page.items.first.raw["text"]
   end
 
+  def test_archive_search_calls_the_full_archive_endpoint
+    transport, calls = scripted([search_response])
+    @configuration.transport = transport
+    events = []
+    subscription = ActiveSupport::Notifications.subscribe("request.recording_studio_x") do |*, payload|
+      events << payload
+    end
+
+    RecordingStudio::X.search(
+      query: "birds",
+      start_time: "2021-01-01T00:00:00Z",
+      end_time: "2021-01-02T00:00:00Z",
+      archive: true,
+      configuration: @configuration
+    )
+
+    assert_includes calls.first[:url], "/2/tweets/search/all?"
+    assert_includes calls.first[:url], "start_time=2021-01-01T00%3A00%3A00Z"
+    assert_equal "Bearer app-bearer", calls.first[:headers]["Authorization"]
+    assert_equal :archive_search, events.last[:operation]
+    assert_equal "/2/tweets/search/all", events.last[:endpoint]
+    assert_equal "GET /2/tweets/search/all", RecordingStudio::X.capability(:archive_search).endpoint
+    refute_includes RecordingStudio::X::DEFERRED.map { |item| item["name"] }, "full_archive_search"
+  ensure
+    ActiveSupport::Notifications.unsubscribe(subscription) if subscription
+  end
+
   def test_search_sends_the_previous_cursor_as_next_token
     transport, calls = scripted([search_response("meta" => {})])
     @configuration.transport = transport

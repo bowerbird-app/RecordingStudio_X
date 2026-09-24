@@ -154,7 +154,7 @@ class RecordingStudioXGemTest < Minitest::Test
     view_source = File.read(view_path)
 
     assert_includes view_source, 'title: "Search X"'
-    assert_includes view_source, 'subtitle: "Recent posts from the last 7 days."'
+    assert_includes view_source, 'subtitle: "Public posts, new or old."'
     assert_includes view_source, "FlatPack::SearchInput::Component"
     assert_includes view_source, "FlatPack::Card::Component"
     assert_includes view_source, "dummy_page_nav"

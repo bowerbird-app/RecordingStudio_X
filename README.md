@@ -77,11 +77,9 @@ result.more?
 result.next_cursor
 ```
 
-Optional arguments are `cursor`, `start_time`, `end_time`, and `sort_order`. `cursor` is sent as `next_token`. `sort_order` is `recency` or `relevancy`. The call returns one page.
+Optional arguments are `cursor`, `start_time`, `end_time`, `sort_order`, and `archive`. `cursor` is sent as `next_token`. `sort_order` is `recency` or `relevancy`. `archive: true` calls `GET /2/tweets/search/all` instead of recent search. That endpoint needs pay-per-use or Enterprise access and reaches back to 21 March 2006. The call returns one page.
 
-The dummy home page sends `start_time` and `end_time` when a date range is chosen, and `sort_order=relevancy` when Best match is chosen. Newest leaves `sort_order` off so X uses recency. Dates outside the last 7 days are rejected before the request.
-
-Full-archive search, `GET /2/tweets/search/all`, is pay-per-use and Enterprise. This gem does not call it.
+The dummy home page sends `start_time` and `end_time` when a date range is chosen, and `sort_order=relevancy` when Best match is chosen. Newest leaves `sort_order` off so X uses recency. A date inside the last 7 days uses recent search. An older date uses full-archive search. Dates before 21 March 2006, and dates in the future, are rejected before the request.
 
 ## Posts
 

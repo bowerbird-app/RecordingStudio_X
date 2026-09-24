@@ -15,6 +15,28 @@ class SearchRequestTest < ActiveSupport::TestCase
     assert_equal "Pick newest or best match.", request.error
   end
 
+  test "dates inside the last 7 days stay on recent search" do
+    travel_to Time.utc(2026, 9, 24, 15, 0, 0) do
+      request = SearchRequest.new(query: "birds", from: "2026-09-18", to: "2026-09-24")
+
+      assert_nil request.error
+      refute request.arguments.key?(:archive)
+    end
+  end
+
+  test "an older date uses the archive and a date before the first post is rejected" do
+    travel_to Time.utc(2026, 9, 24, 15, 0, 0) do
+      older = SearchRequest.new(query: "birds", from: "2026-09-17")
+      too_old = SearchRequest.new(query: "birds", from: "2006-03-20")
+      ahead = SearchRequest.new(query: "birds", to: "2026-09-25")
+
+      assert older.arguments[:archive]
+      assert_equal "2026-09-17T00:00:00Z", older.arguments[:start_time]
+      assert_equal "X starts on 21 March 2006.", too_old.error
+      assert_equal "Those dates are still ahead.", ahead.error
+    end
+  end
+
   test "newest is the default and is not sent to X" do
     request = SearchRequest.new(query: "birds")
 

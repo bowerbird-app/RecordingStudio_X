@@ -3,7 +3,7 @@
 <div class="flex w-full flex-col gap-6">
   <%= render FlatPack::PageTitle::Component.new(
     title: "Search X",
-    subtitle: "Recent posts from the last 7 days.",
+    subtitle: "Public posts, new or old.",
     variant: :h1
   ) %>
 
@@ -21,8 +21,8 @@
         start_value: @search.from,
         end_value: @search.to,
         label: "Dates",
-        help_text: "Last 7 days.",
-        placeholder: "Last 7 days",
+        help_text: "Back to March 2006.",
+        placeholder: "Any time",
         min: @search.earliest_date,
         max: @search.latest_date
       ) %>

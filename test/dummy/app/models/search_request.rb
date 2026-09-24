@@ -1,7 +1,8 @@
 # frozen_string_literal: true
 
 class SearchRequest
-  WINDOW_DAYS = 7
+  RECENT_DAYS = 7
+  EARLIEST = Date.new(2006, 3, 21)
   SORTS = {
     "recency" => "Newest",
     "relevancy" => "Best match"
@@ -38,7 +39,7 @@ class SearchRequest
   end
 
   def earliest_date
-    Date.current - (WINDOW_DAYS - 1)
+    EARLIEST
   end
 
   def latest_date
@@ -52,7 +53,8 @@ class SearchRequest
       cursor: cursor,
       start_time: start_time,
       end_time: usable_end_time,
-      sort_order: (sort == "relevancy" ? "relevancy" : nil)
+      sort_order: (sort == "relevancy" ? "relevancy" : nil),
+      archive: (true if archive?)
     }.compact
   end
 
@@ -68,7 +70,7 @@ class SearchRequest
     return if error
 
     check_order
-    check_window
+    check_bounds
     check_sort
   end
 
@@ -92,15 +94,26 @@ class SearchRequest
     @error = "The start date is after the end date."
   end
 
-  def check_window
+  def check_bounds
     return if error
 
     [ from_date, to_date ].compact.each do |date|
-      next if date.between?(earliest_date, latest_date)
+      if date > latest_date
+        @error = "Those dates are still ahead."
+        break
+      end
 
-      @error = "X only has the last 7 days."
+      next if date >= earliest_date
+
+      @error = "X starts on 21 March 2006."
       break
     end
+  end
+
+  def archive?
+    return false if error
+
+    [ from_date, to_date ].compact.any? { |date| date < Date.current - (RECENT_DAYS - 1) }
   end
 
   def check_sort

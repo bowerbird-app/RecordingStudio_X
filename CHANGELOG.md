@@ -7,8 +7,8 @@
 * OAuth 1.0a user context and OAuth 2.0 user context are separate from application credentials.
 * Pages expose `next_cursor` and `more?`. Rate-limit headers are kept on the result and on API errors.
 * Capabilities, four read-only AI tools, the OAuth 2 PKCE provider contract, and `Identity` are included.
-* Writes, webhooks, filtered stream, and full-archive search are declared and not called.
-* The dummy home search can limit results to a date range in the last 7 days and order them by newest or best match.
+* Writes, webhooks, and filtered stream are declared and not called.
+* The dummy home search can limit results to a date range and order them by newest or best match. Dates inside the last 7 days use recent search. Older dates use full-archive search.
 * The engine application controller lives at `app/controllers/recording_studio/x` so eager load matches `RecordingStudio::X`.
 
 [0.1.0]: https://github.com/bowerbird-app/RecordingStudio_X/releases/tag/v0.1.0

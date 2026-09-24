@@ -12,9 +12,21 @@ module RecordingStudio
       module_function
 
       def search(query:, max_results: nil, cursor: nil, start_time: nil, end_time: nil, sort_order: nil,
-                 credentials: nil, connection: nil, configuration: RecordingStudio::X.configuration)
+                 archive: false, credentials: nil, connection: nil, configuration: RecordingStudio::X.configuration)
         require_query(query)
-        params = field_params.merge(
+        path, operation = search_target(archive)
+        params = search_params(query:, max_results:, cursor:, start_time:, end_time:, sort_order:)
+        page(get(path, params, operation, auth(credentials, connection, configuration)))
+      end
+
+      def search_target(archive)
+        return ["/2/tweets/search/all", :archive_search] if archive
+
+        ["/2/tweets/search/recent", :search]
+      end
+
+      def search_params(query:, max_results:, cursor:, start_time:, end_time:, sort_order:)
+        field_params.merge(
           "query" => query,
           "max_results" => max_results,
           "next_token" => cursor,
@@ -22,7 +34,6 @@ module RecordingStudio
           "end_time" => end_time,
           "sort_order" => sort_order
         )
-        page(get("/2/tweets/search/recent", params, :search, auth(credentials, connection, configuration)))
       end
 
       def post(id, credentials: nil, connection: nil, configuration: RecordingStudio::X.configuration)

@@ -33,9 +33,9 @@ class XSearchHomeTest < ActionDispatch::IntegrationTest
     assert_select "select[name=sort]"
     assert_select "form[action='/'] button[type=submit][name=button]", count: 0
     assert_includes response.body, "Search X"
-    assert_includes response.body, "Recent posts from the last 7 days."
+    assert_includes response.body, "Public posts, new or old."
     assert_includes response.body, "Dates"
-    assert_includes response.body, "Last 7 days."
+    assert_includes response.body, "Back to March 2006."
     assert_includes response.body, "Best match"
   end
 
@@ -74,21 +74,39 @@ class XSearchHomeTest < ActionDispatch::IntegrationTest
       assert_equal "2026-09-20T00:00:00Z", query["start_time"]
       assert_equal "2026-09-23T00:00:00Z", query["end_time"]
       assert_equal "relevancy", query["sort_order"]
+      assert_includes calls.first[:url], "/2/tweets/search/recent?"
       assert_includes response.body, "from=2026-09-20"
       assert_includes response.body, "to=2026-09-22"
       assert_includes response.body, "sort=relevancy"
     end
   end
 
-  test "home stops a date outside the last 7 days before calling X" do
+  test "home uses full-archive search when a date is older than 7 days" do
     travel_to Time.utc(2026, 9, 24, 15, 0, 0) do
-      @configuration.transport = ->(*) { flunk "search should wait for a valid range" }
+      calls = []
+      @configuration.transport = lambda do |env|
+        calls << env
+        json_result(200, search_body)
+      end
 
-      get root_path, params: { q: "BowerBird", from: "2026-09-01", to: "2026-09-02" }
+      get root_path, params: { q: "BowerBird", from: "2021-01-01", to: "2021-01-02" }
 
       assert_response :success
-      assert_includes response.body, "X only has the last 7 days."
+      query = search_query(calls.first[:url])
+      assert_includes calls.first[:url], "/2/tweets/search/all?"
+      assert_equal "2021-01-01T00:00:00Z", query["start_time"]
+      assert_equal "2021-01-03T00:00:00Z", query["end_time"]
+      assert_includes response.body, "Hello from the search"
     end
+  end
+
+  test "home stops a date before the first post before calling X" do
+    @configuration.transport = ->(*) { flunk "search should wait for a valid range" }
+
+    get root_path, params: { q: "BowerBird", from: "2006-03-20", to: "2006-03-21" }
+
+    assert_response :success
+    assert_includes response.body, "X starts on 21 March 2006."
   end
 
   test "home treats today as ending just before now" do
