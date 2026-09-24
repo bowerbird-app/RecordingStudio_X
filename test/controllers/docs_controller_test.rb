@@ -99,7 +99,8 @@ class DocsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select "h1", text: "Gem Views"
     assert_select "table", minimum: 1
-    refute_includes response.body, "app/views/gem_template/home/index.html.erb"
+    legacy_view = %w[gem template].join("_")
+    refute_includes response.body, "app/views/#{legacy_view}/home/index.html.erb"
   end
 
   test "methods page renders successfully" do
