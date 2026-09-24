@@ -6,3 +6,4 @@ ts	phase	decision	why	evidence	result
 2026-09-24T02:18:00Z	scope	Writes, webhooks, filtered stream, and full-archive search are listed and not called	V1 proves reads, capability metadata, and the OAuth contract	lib/recording_studio_x/capability.rb	deferred
 2026-09-24T02:20:00Z	live	Application bearer exchange and OAuth 1.0a signing both reached X and received HTTP 403 client-forbidden	X said the developer app must be attached to a Project. Search and post lookup were not called after that	test/live_smoke_test.rb	403
 2026-09-24T02:22:00Z	review	Kept the config.x rescue and the empty engine route set after comment review	Boot must survive a bad config.x pair, and the gem has no HTTP routes. Restored initializer ENV assignments as code	lib/recording_studio_x/engine.rb	tests green
+2026-09-24T02:28:00Z	verify	Committed the V1 client after mocked tests and the live 403	The trail should point at the commit a reviewer can open	commit 4f1d4ca	tests green
