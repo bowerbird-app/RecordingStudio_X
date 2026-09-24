@@ -1,9 +1,11 @@
 class HomeController < ApplicationController
   def index
-    @query = params[:q].to_s.strip
-    return if @query.empty?
+    @search = SearchRequest.from_params(params)
+    @query = @search.query
+    return if @query.blank?
+    return @error = @search.error if @search.error
 
-    @page = RecordingStudio::X.search(query: @query, cursor: params[:cursor].presence, max_results: 10)
+    @page = RecordingStudio::X.search(**@search.arguments)
   rescue RecordingStudio::X::Error => e
     @error = search_error(e)
   end

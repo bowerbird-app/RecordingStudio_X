@@ -56,6 +56,8 @@ module RecordingStudio
       LIST = [
         define(:search, access: :read, authentication: %i[application user], scopes: USER_READ,
                         endpoint: "GET /2/tweets/search/recent"),
+        define(:archive_search, access: :read, authentication: %i[application user], scopes: USER_READ,
+                                endpoint: "GET /2/tweets/search/all"),
         define(:get_post, access: :read, authentication: %i[application user], scopes: USER_READ,
                           endpoint: "GET /2/tweets/:id"),
         define(:get_user, access: :read, authentication: %i[application user], scopes: USER_READ,
@@ -106,11 +108,6 @@ module RecordingStudio
         "name" => "filtered_stream",
         "status" => "deferred",
         "note" => "GET /2/tweets/search/stream is a persistent app-only connection."
-      },
-      {
-        "name" => "full_archive_search",
-        "status" => "deferred",
-        "note" => "GET /2/tweets/search/all is limited to pay-per-use and Enterprise."
       }
     ].freeze
   end

@@ -3,7 +3,7 @@
 <div class="flex w-full flex-col gap-6">
   <%= render FlatPack::PageTitle::Component.new(
     title: "Search X",
-    subtitle: "Recent posts from the last 7 days.",
+    subtitle: "Public posts, new or old.",
     variant: :h1
   ) %>
 
@@ -14,6 +14,23 @@
         value: @query,
         label: "Search",
         placeholder: "BowerBird"
+      ) %>
+      <%= render FlatPack::DateRangeInput::Component.new(
+        start_name: "from",
+        end_name: "to",
+        start_value: @search.from,
+        end_value: @search.to,
+        label: "Dates",
+        help_text: "Back to March 2006.",
+        placeholder: "Any time",
+        min: @search.earliest_date,
+        max: @search.latest_date
+      ) %>
+      <%= render FlatPack::Select::Component.new(
+        name: "sort",
+        label: "Sort",
+        options: @search.sorts,
+        value: @search.sort_value
       ) %>
       <%= render FlatPack::Button::Component.new(
         text: "Search",
@@ -65,7 +82,7 @@
         <%= render FlatPack::Button::Component.new(
           text: "More posts",
           style: :secondary,
-          href: root_path(q: @query, cursor: @page.next_cursor)
+          href: root_path(@search.page_params(@page.next_cursor))
         ) %>
       <% end %>
     <% end %>
