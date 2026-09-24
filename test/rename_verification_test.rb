@@ -351,7 +351,7 @@ class RenameVerificationTest < Minitest::Test
   end
 
   def controller_dir
-    segments = @gem_name == "recording_studio_x" ? [ "recording_studio", "x" ] : [ @gem_name ]
+    segments = @gem_name == "recording_studio_x" ? %w[recording_studio x] : [@gem_name]
     File.join(@root, "app", "controllers", *segments)
   end
 end
