@@ -18,7 +18,7 @@ Authenticated dummy pages use Recording Studio's shared default layout (`Recordi
 
 A Cloud Agent boots this repo into a ready-to-use dev environment with no manual steps. The setup lives in `.cursor/`:
 
-- `install.sh` provisions Ruby (pinned by `.ruby-version`), PostgreSQL 16, all gems, the seeded dummy database, and compiled CSS at build time, then fetches Recording Studio skills.
+- `install.sh` provisions Ruby (pinned by `.ruby-version`), PostgreSQL 16, all gems, the seeded dummy database, and compiled CSS at build time, then fetches Recording Studio skills. That CSS build scans FlatPack and Recording Studio in the system gem home, using the GitHub checkout names (`flatpack-<rev>`, `RecordingStudio-<rev>`, `RecordingStudio_*`).
 - `start.sh` starts PostgreSQL on every boot.
 - `environment.json` runs the `rails-server` and `tailwind-watch` terminals and exposes port 3000.
 

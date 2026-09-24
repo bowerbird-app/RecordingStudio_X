@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.3] - 2026-09-24
+
+### Fixed
+- Dummy Tailwind now scans FlatPack components and Recording Studio views where they are actually installed. Cloud Agent `install.sh` puts gems in the system gem home, and GitHub checkouts are named `flatpack-<rev>`, `RecordingStudio-<rev>`, and `RecordingStudio_*`.
+
+### Upgrade notes
+- From `test/dummy`, run `bin/rails tailwindcss:build` so the signed-in layout, buttons, and alerts pick up the new sources.
+
 ## [0.2.2] - 2026-09-11
 
 ### Changed
@@ -90,7 +98,8 @@ New addons copied from this template are born on Recording Studio 4.x.
 - Comprehensive README and documentation
 - Basic test suite with Minitest
 
-[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_gem_template/compare/v0.2.2...HEAD
+[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_gem_template/compare/v0.2.3...HEAD
+[0.2.3]: https://github.com/bowerbird-app/RecordingStudio_gem_template/compare/v0.2.2...v0.2.3
 [0.2.2]: https://github.com/bowerbird-app/RecordingStudio_gem_template/releases/tag/v0.2.2
 [0.2.1]: https://github.com/bowerbird-app/RecordingStudio_gem_template/releases/tag/v0.2.1
 [0.2.0]: https://github.com/bowerbird-app/RecordingStudio_gem_template/releases/tag/v0.2.0
