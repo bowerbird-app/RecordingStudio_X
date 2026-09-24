@@ -153,8 +153,9 @@ class RecordingStudioXGemTest < Minitest::Test
     view_path = File.expand_path("dummy/app/views/home/index.html.erb", __dir__)
     view_source = File.read(view_path)
 
-    assert_includes view_source, 'title: "Template Demo"'
-    assert_includes view_source, 'subtitle: "This dummy app is the browser-facing demo surface for the template."'
+    assert_includes view_source, 'title: "Search X"'
+    assert_includes view_source, 'subtitle: "Recent posts from the last 7 days."'
+    assert_includes view_source, "FlatPack::SearchInput::Component"
     assert_includes view_source, "FlatPack::Card::Component"
     assert_includes view_source, "dummy_page_nav"
     refute_includes view_source, 'title: "Demo"'
