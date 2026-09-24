@@ -53,9 +53,8 @@ class RenameVerificationTest < Minitest::Test
   end
 
   def test_controllers_directory_exists
-    controllers_dir = File.join(@root, "app", "controllers", @gem_name)
-    assert Dir.exist?(controllers_dir),
-           "Expected controllers directory at #{controllers_dir}"
+    assert Dir.exist?(controller_dir),
+           "Expected controllers directory at #{controller_dir}"
   end
 
   def test_views_directory_exists
@@ -129,27 +128,27 @@ class RenameVerificationTest < Minitest::Test
   end
 
   def test_application_controller_exists
-    path = File.join(@root, "app", "controllers", @gem_name, "application_controller.rb")
+    path = File.join(controller_dir, "application_controller.rb")
     assert File.exist?(path),
            "Application controller should exist at #{path}"
   end
 
   def test_application_controller_has_correct_module
-    path = File.join(@root, "app", "controllers", @gem_name, "application_controller.rb")
+    path = File.join(controller_dir, "application_controller.rb")
     content = File.read(path)
     assert_defines_namespace(content)
   end
 
   def test_home_controller_exists
     skip "API gem has no home controller" if @gem_name == "recording_studio_x"
-    path = File.join(@root, "app", "controllers", @gem_name, "home_controller.rb")
+    path = File.join(controller_dir, "home_controller.rb")
     assert File.exist?(path),
            "Home controller should exist at #{path}"
   end
 
   def test_home_controller_has_correct_module
     skip "API gem has no home controller" if @gem_name == "recording_studio_x"
-    path = File.join(@root, "app", "controllers", @gem_name, "home_controller.rb")
+    path = File.join(controller_dir, "home_controller.rb")
     content = File.read(path)
     assert_defines_namespace(content)
   end
@@ -349,5 +348,10 @@ class RenameVerificationTest < Minitest::Test
 
   def read_routes_file
     File.read(File.join(@root, "config", "routes.rb"))
+  end
+
+  def controller_dir
+    segments = @gem_name == "recording_studio_x" ? [ "recording_studio", "x" ] : [ @gem_name ]
+    File.join(@root, "app", "controllers", *segments)
   end
 end

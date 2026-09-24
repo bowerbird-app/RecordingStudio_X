@@ -3,6 +3,11 @@
 require "test_helper"
 
 class RecordingStudioTemplateTest < ActiveSupport::TestCase
+  test "engine application controller autoloads under the isolated namespace" do
+    assert_equal "RecordingStudio::X::ApplicationController", RecordingStudio::X::ApplicationController.name
+    assert RecordingStudio::X::ApplicationController < ActionController::Base
+  end
+
   test "dummy app loads root switchable config and controller support" do
     assert_equal [ "all_workspaces" ], RecordingStudioRootSwitchable.configuration.scopes.keys
     assert_equal :application_layout, RecordingStudioRootSwitchable.configuration.layout
