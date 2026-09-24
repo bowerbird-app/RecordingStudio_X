@@ -41,4 +41,4 @@ Use this app to verify the generated addon experience before renaming the gem or
 
 Authenticated pages use Recording Studio's shared default layout. Devise sign-in keeps `layouts/application`. Replace dummy docs page content so it matches the gem's actual concepts.
 
-The home page in `app/views/home/index.html.erb` should stay a minimal demo surface for the gem's core feature. Do not turn it into a wall of documentation; the dummy docs pages exist so deeper explanations can live in focused sections.
+The home page in `app/views/home/index.html.erb` should stay a minimal demo surface for the gem's core feature. It searches recent posts and can limit that search to a date range in the last 7 days, or order results by newest or best match. Do not turn it into a wall of documentation; the dummy docs pages exist so deeper explanations can live in focused sections.

@@ -15,6 +15,23 @@
         label: "Search",
         placeholder: "BowerBird"
       ) %>
+      <%= render FlatPack::DateRangeInput::Component.new(
+        start_name: "from",
+        end_name: "to",
+        start_value: @search.from,
+        end_value: @search.to,
+        label: "Dates",
+        help_text: "Last 7 days.",
+        placeholder: "Last 7 days",
+        min: @search.earliest_date,
+        max: @search.latest_date
+      ) %>
+      <%= render FlatPack::Select::Component.new(
+        name: "sort",
+        label: "Sort",
+        options: @search.sorts,
+        value: @search.sort_value
+      ) %>
       <%= render FlatPack::Button::Component.new(
         text: "Search",
         style: :primary,
@@ -65,7 +82,7 @@
         <%= render FlatPack::Button::Component.new(
           text: "More posts",
           style: :secondary,
-          href: root_path(q: @query, cursor: @page.next_cursor)
+          href: root_path(@search.page_params(@page.next_cursor))
         ) %>
       <% end %>
     <% end %>
