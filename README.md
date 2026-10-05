@@ -81,6 +81,8 @@ Optional arguments are `cursor`, `start_time`, `end_time`, `sort_order`, and `ar
 
 The dummy home page sends `start_time` and `end_time` when a date range is chosen, and `sort_order=relevancy` when Best match is chosen. Newest leaves `sort_order` off so X uses recency. A date inside the last 7 days uses recent search. An older date uses full-archive search. Dates before 21 March 2006, and dates in the future, are rejected before the request.
 
+Dummy credentials (`test/dummy/config/credentials.yml.enc`) are encrypted with the shared RecordingStudio_* development master key. Set `RAILS_MASTER_KEY` or put that key in `test/dummy/config/master.key` (gitignored). Keep the encrypted file; do not generate a per-repo dummy key.
+
 ## Posts
 
 ```ruby
