@@ -27,7 +27,9 @@ class RecordingStudioTemplateTest < ActiveSupport::TestCase
     assert connection.column_exists?(:recording_studio_recordings, :root_recording_id)
     assert connection.table_exists?(:recording_studio_accesses)
     assert connection.table_exists?(:recording_studio_access_invitations)
-    assert_equal :string, connection.type_for_attribute("RecordingStudio::Access", "role").type rescue connection.columns(:recording_studio_accesses).find { |column| column.name == "role" }.type
+    role_column = connection.columns(:recording_studio_accesses).find { |column| column.name == "role" }
+    assert_equal :string, role_column.type
+    assert_equal "view", role_column.default
     refute connection.table_exists?(:recording_studio_access_boundaries)
     refute connection.table_exists?(:recording_studio_device_sessions)
   end
