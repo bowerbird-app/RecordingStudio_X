@@ -45,7 +45,7 @@ class RecordingStudioXGemTest < Minitest::Test
     gemfile = File.read(File.expand_path("dummy/Gemfile", __dir__))
 
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio", tag: "v4.5.0"'
-    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_accessible", tag: "v0.13.0"'
+    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_accessible", tag: "v0.15.0"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_root_switchable", tag: "v0.8.0"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_metrics", tag: "v0.2.0"'
     assert_includes gemfile, 'github: "bowerbird-app/flatpack", tag: "v0.1.177"'
@@ -88,6 +88,28 @@ class RecordingStudioXGemTest < Minitest::Test
     assert_includes schema, 't.string "role", default: "view", null: false'
     assert_includes invitation_migration, "create_table :recording_studio_access_invitations"
     assert_includes role_migration, "change_column :recording_studio_accesses, :role, :string"
+  end
+
+  def test_dummy_schema_includes_accessible_audience_tables
+    schema = File.read(File.expand_path("dummy/db/schema.rb", __dir__))
+    constraints_migration = File.read(
+      File.expand_path(
+        "dummy/db/migrate/20261012044140_create_recording_studio_access_constraints.rb",
+        __dir__
+      )
+    )
+    rules_migration = File.read(
+      File.expand_path(
+        "dummy/db/migrate/20261012044141_create_recording_studio_access_rules.rb",
+        __dir__
+      )
+    )
+
+    assert_includes schema, 'create_table "recording_studio_access_constraints"'
+    assert_includes schema, 'create_table "recording_studio_access_rules"'
+    assert_includes schema, 't.string "allowed_audiences", default: [], null: false, array: true'
+    assert_includes constraints_migration, "create_table :recording_studio_access_constraints"
+    assert_includes rules_migration, "create_table :recording_studio_access_rules"
   end
 
   def test_template_does_not_ship_copied_core_hooks_or_base_service
