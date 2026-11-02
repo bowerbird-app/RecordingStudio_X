@@ -26,18 +26,16 @@ class DocsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select "h1", text: "Install"
     assert_includes response.body, "Step 1"
-    assert_includes response.body, "Provide one section title for each step"
-    assert_includes response.body, "# Put the step instruction here."
+    assert_includes response.body, "Put the gem in the host bundle"
+    assert_includes response.body, "bundle add recording_studio_x"
   end
 
   test "config page renders successfully" do
     get docs_config_path
     assert_response :success
     assert_select "h1", text: "Config"
-    expected_placeholder = "Replace this placeholder with the configuration settings your generated gem exposes."
-
-    assert_includes response.body, expected_placeholder
-    assert_includes response.body, "# Add the config settings for the gem here."
+    assert_includes response.body, "Bearer, OAuth 1, and OAuth 2 client settings for X."
+    assert_includes response.body, "config.bearer_token"
   end
 
   test "recordable types page renders configured recordables dynamically" do
@@ -107,11 +105,9 @@ class DocsControllerTest < ActionDispatch::IntegrationTest
     get docs_methods_path
     assert_response :success
     assert_select "h1", text: "Methods"
-    assert_includes response.body, "Document the public methods your addon exposes."
-    assert_includes response.body, "Example method"
-    assert_includes response.body, "recordingstudio_addon.example_method"
-    assert_includes response.body, "# Explain what this method does before the example."
-    assert_includes response.body, "Provide one section title and codeblock for each method"
+    assert_includes response.body, "Read posts, people, and identity through RecordingStudio::X."
+    assert_includes response.body, "RecordingStudio::X.search"
+    assert_includes response.body, "page = RecordingStudio::X.search"
   end
 
   test "authenticated docs pages use the recording studio default layout" do

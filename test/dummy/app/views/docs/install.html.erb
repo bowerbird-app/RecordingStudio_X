@@ -3,19 +3,19 @@
 <div class="flex w-full flex-col gap-6">
   <%= render FlatPack::PageTitle::Component.new(
     title: "Install",
-    subtitle: "Host-app setup for the mounted GemTemplate engine and its sample migrations.",
+    subtitle: "Add the X client to a host app.",
     variant: :h1
   ) %>
 
   <%= render FlatPack::SectionTitle::Component.new(
     title: "Step 1",
-    subtitle: "Provide one section title for each step",
+    subtitle: "Put the gem in the host bundle",
   ) %>
 
   <%= render FlatPack::CodeBlock::Component.new(
     language: :bash,
     code: <<~CODE
-      # Put the step instruction here.
+      bundle add recording_studio_x --github bowerbird-app/RecordingStudio_X
     CODE
   ) %>
 </div>

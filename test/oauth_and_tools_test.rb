@@ -72,6 +72,29 @@ class OauthAndToolsTest < Minitest::Test
     assert_equal "refresh-secret", refreshed.refresh_token
   end
 
+  def test_exchange_code_does_not_persist_tokens
+    token_body = {
+      "token_type" => "bearer",
+      "expires_in" => 7200,
+      "access_token" => "access-secret",
+      "refresh_token" => "refresh-secret",
+      "scope" => "tweet.read"
+    }
+    @configuration.transport = lambda do |_env|
+      RecordingStudio::X::HttpResult.new(status: 200, headers: {}, body: JSON.generate(token_body))
+    end
+    before = persistence_snapshot
+
+    exchanged = RecordingStudio::X.exchange_code(
+      code: "auth-code", redirect_uri: "https://app.example/callback",
+      code_verifier: "verifier", configuration: @configuration
+    )
+
+    assert_kind_of RecordingStudio::X::TokenSet, exchanged
+    assert_equal "access-secret", exchanged.access_token
+    assert_equal before, persistence_snapshot
+  end
+
   def test_public_client_omits_basic_authorization
     @configuration.client_secret = nil
     calls = []
@@ -289,6 +312,16 @@ class OauthAndToolsTest < Minitest::Test
 
   def form(env)
     env[:body].split("&").to_h { |pair| pair.split("=", 2) }
+  end
+
+  def persistence_snapshot
+    return :active_record_not_loaded unless defined?(ActiveRecord::Base) && ActiveRecord::Base.connected?
+
+    connection = ActiveRecord::Base.connection
+    connection.tables.sort.to_h do |table|
+      sql = "SELECT COUNT(*) FROM #{connection.quote_table_name(table)}"
+      [table, connection.select_value(sql)]
+    end
   end
 
   def hide_recording_studio_ai
