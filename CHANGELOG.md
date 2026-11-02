@@ -1,5 +1,9 @@
 # Changelog
 
+## [Unreleased]
+
+* Dummy Sign out uses FlatPack Button `href:` so the link is an `<a>` instead of a dead `<button url>`.
+
 ## [0.1.7] - 2026-11-02
 
 * Align `VERSION` and this changelog with git tag `v0.1.6`, then bump the patch.
