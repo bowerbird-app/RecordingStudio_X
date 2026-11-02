@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 require "test_helper"
+require "logger"
+require "stringio"
 
 class EngineTest < Minitest::Test
   def setup
@@ -73,7 +75,7 @@ class EngineTest < Minitest::Test
     assert_equal 15, RecordingStudio::X.configuration.read_timeout
   end
 
-  def test_load_config_swallow_each_pair_errors
+  def test_load_config_logs_and_raises_each_pair_errors
     bad_pair_config = Class.new do
       def each_pair
         raise "bad pair"
@@ -88,9 +90,14 @@ class EngineTest < Minitest::Test
       end
     end.new(app_config)
 
-    find_initializer("recording_studio_x.load_config").block.call(app)
+    logs = capture_engine_logs do
+      error = assert_raises(RuntimeError) do
+        find_initializer("recording_studio_x.load_config").block.call(app)
+      end
+      assert_equal "bad pair", error.message
+    end
 
-    assert_equal "ok", RecordingStudio::X.configuration.bearer_token
+    assert_includes logs, "bad pair"
   end
 
   def test_load_config_is_noop_without_config_sources
@@ -103,7 +110,7 @@ class EngineTest < Minitest::Test
     assert_equal true, RecordingStudio::X.configuration.instrumentation_enabled
   end
 
-  def test_load_config_ignores_non_enumerable_yaml_and_merge_errors
+  def test_load_config_logs_and_raises_yaml_merge_errors
     yaml = Class.new do
       def each
         raise "bad yaml"
@@ -121,9 +128,14 @@ class EngineTest < Minitest::Test
     end.new(app_config)
     app.yaml = yaml
 
-    find_initializer("recording_studio_x.load_config").block.call(app)
+    logs = capture_engine_logs do
+      error = assert_raises(RuntimeError) do
+        find_initializer("recording_studio_x.load_config").block.call(app)
+      end
+      assert_equal "bad yaml", error.message
+    end
 
-    assert_equal 22, RecordingStudio::X.configuration.read_timeout
+    assert_includes logs, "bad yaml"
   end
 
   def test_apply_extension_initializers_register_active_support_on_load_callbacks
@@ -299,5 +311,15 @@ class EngineTest < Minitest::Test
 
   def find_initializer(name)
     RecordingStudio::X::Engine.initializers.find { |initializer| initializer.name == name }
+  end
+
+  def capture_engine_logs
+    previous = Rails.logger
+    io = StringIO.new
+    Rails.logger = Logger.new(io)
+    yield
+    io.string
+  ensure
+    Rails.logger = previous
   end
 end

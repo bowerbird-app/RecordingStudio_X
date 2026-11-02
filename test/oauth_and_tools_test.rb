@@ -72,6 +72,64 @@ class OauthAndToolsTest < Minitest::Test
     assert_equal "refresh-secret", refreshed.refresh_token
   end
 
+  def test_exchange_code_does_not_persist_tokens
+    token_body = {
+      "token_type" => "bearer",
+      "expires_in" => 7200,
+      "access_token" => "access-secret",
+      "refresh_token" => "refresh-secret",
+      "scope" => "tweet.read"
+    }
+    @configuration.transport = lambda do |_env|
+      RecordingStudio::X::HttpResult.new(status: 200, headers: {}, body: JSON.generate(token_body))
+    end
+    before = persistence_snapshot
+
+    exchanged = RecordingStudio::X.exchange_code(
+      code: "auth-code", redirect_uri: "https://app.example/callback",
+      code_verifier: "verifier", configuration: @configuration
+    )
+
+    assert_kind_of RecordingStudio::X::TokenSet, exchanged
+    assert_equal "access-secret", exchanged.access_token
+    assert_equal before, persistence_snapshot
+  end
+
+  def test_omniauth_strategy_callback_maps_identity
+    stub_omniauth_oauth2
+    require "recording_studio_x/omniauth_strategy"
+
+    payload = {
+      "id" => "42",
+      "name" => "Ada Lovelace",
+      "username" => "ada",
+      "profile_image_url" => "https://img.test/a.jpg",
+      "confirmed_email" => "ada@example.test"
+    }
+    response = Object.new
+    response.define_singleton_method(:parsed) { { "data" => payload } }
+    requested_path = nil
+    token = Object.new
+    token.define_singleton_method(:get) do |path|
+      requested_path = path
+      response
+    end
+
+    strategy = OmniAuth::Strategies::X.allocate
+    strategy.define_singleton_method(:access_token) { token }
+    strategy.define_singleton_method(:full_host) { "https://app.example" }
+    strategy.define_singleton_method(:script_name) { "" }
+    strategy.define_singleton_method(:callback_path) { "/auth/x/callback" }
+
+    assert_equal "42", strategy.uid
+    assert_equal RecordingStudio::X::Identity.me_path, requested_path
+    assert_equal "Ada Lovelace", strategy.info[:name]
+    assert_equal "ada", strategy.info[:nickname]
+    assert_equal "ada@example.test", strategy.info[:email]
+    assert_equal payload, strategy.extra[:raw_info]
+    assert_equal "https://app.example/auth/x/callback", strategy.callback_url
+  end
+
   def test_public_client_omits_basic_authorization
     @configuration.client_secret = nil
     calls = []
@@ -289,6 +347,49 @@ class OauthAndToolsTest < Minitest::Test
 
   def form(env)
     env[:body].split("&").to_h { |pair| pair.split("=", 2) }
+  end
+
+  def stub_omniauth_oauth2
+    return if defined?(OmniAuth::Strategies::OAuth2)
+
+    oauth2 = Class.new do
+      def self.option(key, value = nil)
+        @default_options ||= {}
+        @default_options[key] = value
+      end
+
+      def self.uid(&)
+        define_method(:uid, &)
+      end
+
+      def self.info(&)
+        define_method(:info, &)
+      end
+
+      def self.extra(&)
+        define_method(:extra, &)
+      end
+
+      def options
+        @options ||= (self.class.instance_variable_get(:@default_options) || {}).dup
+      end
+    end
+    omniauth = Module.new
+    strategies = Module.new
+    strategies.const_set(:OAuth2, oauth2)
+    omniauth.const_set(:Strategies, strategies)
+    Object.const_set(:OmniAuth, omniauth)
+    $LOADED_FEATURES << "omniauth-oauth2"
+  end
+
+  def persistence_snapshot
+    return :active_record_not_loaded unless defined?(ActiveRecord::Base) && ActiveRecord::Base.connected?
+
+    connection = ActiveRecord::Base.connection
+    connection.tables.sort.to_h do |table|
+      sql = "SELECT COUNT(*) FROM #{connection.quote_table_name(table)}"
+      [table, connection.select_value(sql)]
+    end
   end
 
   def hide_recording_studio_ai
