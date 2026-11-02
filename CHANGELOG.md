@@ -1,11 +1,10 @@
 # Changelog
 
-## [0.2.0] - 2026-11-02
+## [0.1.7] - 2026-11-02
 
-* Minor. Boot now logs and raises when host YAML or `config.x.recording_studio_x` is broken. A missing `config/recording_studio_x.yml` is still ignored.
-* Align the changelog with git tags through `v0.1.6`.
+* Align `VERSION` and this changelog with git tag `v0.1.6`, then bump the patch.
 * Dummy install/config/methods copy names X. Pin non-matrix `ruby/setup-ruby` to Ruby 3.3.
-* Token exchange does not persist records.
+* Token exchange does not persist records. Untrack SimpleCov output.
 
 ## [0.1.6] - 2026-10-14
 
@@ -43,7 +42,7 @@
 * The dummy home search can limit results to a date range and order them by newest or best match. Dates inside the last 7 days use recent search. Older dates use full-archive search.
 * The engine application controller lives at `app/controllers/recording_studio/x` so eager load matches `RecordingStudio::X`.
 
-[0.2.0]: https://github.com/bowerbird-app/RecordingStudio_X/releases/tag/v0.2.0
+[0.1.7]: https://github.com/bowerbird-app/RecordingStudio_X/releases/tag/v0.1.7
 [0.1.6]: https://github.com/bowerbird-app/RecordingStudio_X/releases/tag/v0.1.6
 [0.1.5]: https://github.com/bowerbird-app/RecordingStudio_X/releases/tag/v0.1.5
 [0.1.4]: https://github.com/bowerbird-app/RecordingStudio_X/releases/tag/v0.1.4

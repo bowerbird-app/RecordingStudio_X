@@ -46,7 +46,7 @@ RecordingStudio::X.configure do |config|
 end
 ```
 
-A Rails host can also set `config/recording_studio_x.yml` or `config.x.recording_studio_x`. The engine loads YAML first, then `config.x`, then the initializer. A missing YAML file is ignored. Other YAML and `config.x` load errors are logged and raised.
+A Rails host can also set `config/recording_studio_x.yml` or `config.x.recording_studio_x`. The engine loads YAML first, then `config.x`, then the initializer.
 
 `configuration.to_h` and `configuration.inspect` report `configured` or `missing`. They do not print secret values.
 
