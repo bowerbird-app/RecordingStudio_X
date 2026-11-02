@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "test_helper"
+require "fileutils"
 require "logger"
 require "stringio"
 
@@ -66,13 +67,59 @@ class EngineTest < Minitest::Test
 
     app = Struct.new(:config) do
       def config_for(_name)
-        raise "missing file"
+        raise "Could not load configuration. No such file - config/recording_studio_x.yml"
       end
     end.new(app_config)
 
     find_initializer("recording_studio_x.load_config").block.call(app)
 
     assert_equal 15, RecordingStudio::X.configuration.read_timeout
+  end
+
+  def test_load_config_skips_yaml_when_the_file_is_absent
+    dir = Dir.mktmpdir
+    pair_config = Class.new do
+      def each_pair
+        yield(:read_timeout, 17)
+      end
+    end.new
+    xcfg = Struct.new(:recording_studio_x).new(pair_config)
+    app_config = Struct.new(:x).new(xcfg)
+    app = Struct.new(:config, :root) do
+      def config_for(_name)
+        raise "config_for should not run when the YAML file is missing"
+      end
+    end.new(app_config, dir)
+
+    find_initializer("recording_studio_x.load_config").block.call(app)
+
+    assert_equal 17, RecordingStudio::X.configuration.read_timeout
+  ensure
+    FileUtils.remove_entry(dir) if dir
+  end
+
+  def test_load_config_raises_when_existing_yaml_is_invalid
+    dir = Dir.mktmpdir
+    FileUtils.mkdir_p(File.join(dir, "config"))
+    File.write(File.join(dir, "config", "recording_studio_x.yml"), "not: [valid")
+    app_config = Struct.new(:x).new(Object.new)
+    app = Struct.new(:config, :root) do
+      def config_for(_name)
+        raise "Unable to parse YAML"
+      end
+    end.new(app_config, dir)
+
+    logs = capture_engine_logs do
+      error = assert_raises(RuntimeError) do
+        find_initializer("recording_studio_x.load_config").block.call(app)
+      end
+      assert_equal "Unable to parse YAML", error.message
+      refute error.message.start_with?("Could not load configuration. No such file")
+    end
+
+    assert_includes logs, "Unable to parse YAML"
+  ensure
+    FileUtils.remove_entry(dir) if dir
   end
 
   def test_load_config_logs_and_raises_each_pair_errors

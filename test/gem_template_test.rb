@@ -4,7 +4,7 @@ require "test_helper"
 
 class RecordingStudioXGemTest < Minitest::Test
   def test_version_matches_release
-    assert_equal "0.1.7", ::RecordingStudio::X::VERSION
+    assert_equal "0.2.0", ::RecordingStudio::X::VERSION
   end
 
   def test_engine_exists
