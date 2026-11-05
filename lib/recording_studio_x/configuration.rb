@@ -12,7 +12,7 @@ module RecordingStudio
 
       include ConfigurationStatus
 
-      attr_reader :hooks, :bearer_token, :consumer_key, :consumer_secret
+      attr_reader :hooks, :bearer_token, :consumer_key, :consumer_secret, :layout
       attr_accessor :transport, :instrumentation_enabled, :access_token, :access_token_secret,
                     :client_id, :client_secret
       attr_writer :open_timeout, :read_timeout, :write_timeout, :api_origin
@@ -53,6 +53,10 @@ module RecordingStudio
         @api_origin || DEFAULT_ORIGIN
       end
 
+      def layout=(value)
+        @layout = RecordingStudio::Layout.accept(value)
+      end
+
       def application_bearer(transport)
         @app_bearer.fetch(self, transport)
       end
@@ -83,6 +87,7 @@ module RecordingStudio
         @api_origin = DEFAULT_ORIGIN
         @instrumentation_enabled = true
         @transport = nil
+        @layout = nil
         @hooks = RecordingStudio::Hooks.new
         @app_bearer = AppBearer.new
       end

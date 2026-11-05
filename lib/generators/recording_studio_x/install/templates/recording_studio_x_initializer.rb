@@ -6,4 +6,6 @@ RecordingStudio::X.configure do |config|
   config.consumer_secret = ENV.fetch("x_consumer_key_secret", nil) if ENV.key?("x_consumer_key_secret")
   config.client_id = ENV.fetch("x_client_id", nil) if ENV.key?("x_client_id")
   config.client_secret = ENV.fetch("x_client_secret", nil) if ENV.key?("x_client_secret")
+  # nil uses RecordingStudio.configuration.layout, then recording_studio/default_layout.
+  # config.layout = "application"
 end

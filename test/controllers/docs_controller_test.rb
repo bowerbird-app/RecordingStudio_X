@@ -25,6 +25,7 @@ class DocsControllerTest < ActionDispatch::IntegrationTest
     get docs_install_path
     assert_response :success
     assert_select "h1", text: "Install"
+    assert_select "h1", count: 1
     assert_includes response.body, "Step 1"
     assert_includes response.body, "Put the gem in the host bundle"
     assert_includes response.body, "bundle add recording_studio_x"
@@ -34,6 +35,7 @@ class DocsControllerTest < ActionDispatch::IntegrationTest
     get docs_config_path
     assert_response :success
     assert_select "h1", text: "Config"
+    assert_select "h1", count: 1
     assert_includes response.body, "Bearer, OAuth 1, and OAuth 2 client settings for X."
     assert_includes response.body, "config.bearer_token"
   end
@@ -46,6 +48,7 @@ class DocsControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select "h1", text: "Recordable types"
+    assert_select "h1", count: 1
     assert_includes(
       response.body,
       "The list below comes from RecordingStudio.recordable_declarations and parent/root introspection."
@@ -81,6 +84,7 @@ class DocsControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select "h1", text: "Recordings tree"
+    assert_select "h1", count: 1
     assert_includes response.body, "Workspace: Tree Workspace"
     assert_includes response.body, "Folder: Reference"
     assert_includes response.body, "Page: API"
@@ -96,6 +100,7 @@ class DocsControllerTest < ActionDispatch::IntegrationTest
     get docs_gem_views_path
     assert_response :success
     assert_select "h1", text: "Gem Views"
+    assert_select "h1", count: 1
     assert_select "table", minimum: 1
     legacy_view = %w[gem template].join("_")
     refute_includes response.body, "app/views/#{legacy_view}/home/index.html.erb"
@@ -105,6 +110,7 @@ class DocsControllerTest < ActionDispatch::IntegrationTest
     get docs_methods_path
     assert_response :success
     assert_select "h1", text: "Methods"
+    assert_select "h1", count: 1
     assert_includes response.body, "Read posts, people, and identity through RecordingStudio::X."
     assert_includes response.body, "RecordingStudio::X.search"
     assert_includes response.body, "page = RecordingStudio::X.search"
@@ -114,6 +120,7 @@ class DocsControllerTest < ActionDispatch::IntegrationTest
     get docs_install_path
 
     assert_response :success
+    assert_select "h1", count: 1
     assert_select "body[data-recording-studio-default-layout='true']", count: 1
     assert_select "nav[aria-label='Page navigation']", count: 1
     refute_includes response.body, "flat-pack-sidebar-layout"

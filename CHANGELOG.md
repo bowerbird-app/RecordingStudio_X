@@ -2,7 +2,19 @@
 
 ## [Unreleased]
 
-* Dummy Sign out uses FlatPack Button `href:` so the link is an `<a>` instead of a dead `<button url>`.
+## [0.2.0] - 2026-11-05
+
+### Changed
+- Require `recording_studio` `>= 6.3.0`. The root and dummy bundles pin Recording Studio tag `v6.3.0` and FlatPack tag `v0.1.341`.
+- Dummy companion pins: Accessible `v0.24.1`, Trashable `v0.12.2`, Metrics `v0.7.2`, Cache `v0.6.2`, Root Switchable `v0.11.5`.
+- Engine controllers call `recording_studio_layout`. `RecordingStudio::X.configuration.layout` defaults to `nil` (core `DEFAULT_LAYOUT`) and is validated by `RecordingStudio::Layout.accept`.
+- Dummy Sign-in and home cards no longer pass FlatPack Card `style:`.
+- Dummy Sign out uses FlatPack Button `href:` so the link is an `<a>` instead of a dead `<button url>`.
+- Root and dummy lockfiles refresh Rails `8.1.4.1`, Rack `>= 3.2.8`, Nokogiri `>= 1.19.5`, Loofah `>= 2.25.3`, and `rails-html-sanitizer` `>= 1.7.2`.
+- Remove template leftovers `UPDATE_SUMMARY.md`, `MIGRATION_NOTES.md`, and `docs/gem_template/`.
+
+### Upgrade notes
+- See `UPGRADING.md`. Hosts must run Recording Studio `>= 6.3.0`. Call `recording_studio_layout` on engine and host controllers. Do not include `RecordingStudio::UsesDefaultLayout`.
 
 ## [0.1.7] - 2026-11-02
 
@@ -46,6 +58,8 @@
 * The dummy home search can limit results to a date range and order them by newest or best match. Dates inside the last 7 days use recent search. Older dates use full-archive search.
 * The engine application controller lives at `app/controllers/recording_studio/x` so eager load matches `RecordingStudio::X`.
 
+[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_X/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/bowerbird-app/RecordingStudio_X/releases/tag/v0.2.0
 [0.1.7]: https://github.com/bowerbird-app/RecordingStudio_X/releases/tag/v0.1.7
 [0.1.6]: https://github.com/bowerbird-app/RecordingStudio_X/releases/tag/v0.1.6
 [0.1.5]: https://github.com/bowerbird-app/RecordingStudio_X/releases/tag/v0.1.5

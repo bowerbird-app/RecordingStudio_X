@@ -1,12 +1,6 @@
-<% dummy_page_nav(title: "Search X", back_url: root_path) %>
+<% dummy_page_nav(title: "Search X", subtitle: "Public posts, new or old.", back_url: root_path) %>
 
 <div class="flex w-full flex-col gap-6">
-  <%= render FlatPack::PageTitle::Component.new(
-    title: "Search X",
-    subtitle: "Public posts, new or old.",
-    variant: :h1
-  ) %>
-
   <%= form_with url: root_path, method: :get do %>
     <div class="flex w-full flex-col gap-4">
       <%= render FlatPack::SearchInput::Component.new(
@@ -52,7 +46,7 @@
     <% else %>
       <div class="flex w-full flex-col gap-4">
         <% @page.items.each do |post| %>
-          <%= render FlatPack::Card::Component.new(style: :outlined) do |card| %>
+          <%= render FlatPack::Card::Component.new(border: :default) do |card| %>
             <% card.body do %>
               <div class="flex flex-col gap-2">
                 <p class="text-sm font-medium">

@@ -41,6 +41,6 @@ Then open the app and sign in with:
 
 Use this app to verify the generated addon experience before renaming the gem or copying patterns into another host app. If a layout, route, asset source, or Recording Studio initializer change breaks here, the template likely needs adjustment before reuse.
 
-Authenticated pages use Recording Studio's shared default layout. Devise sign-in keeps `layouts/application`. Replace dummy docs page content so it matches the gem's actual concepts.
+Authenticated pages use Recording Studio's shared default layout through `recording_studio_layout`. Devise sign-in keeps `layouts/application`. Replace dummy docs page content so it matches the gem's actual concepts.
 
 The home page in `app/views/home/index.html.erb` should stay a minimal demo surface for the gem's core feature. It searches public posts back to 21 March 2006, uses recent search for the last 7 days, and uses full-archive search for older dates. Results can be ordered by newest or best match. Do not turn it into a wall of documentation; the dummy docs pages exist so deeper explanations can live in focused sections.

@@ -20,6 +20,8 @@ bin/rails generate recording_studio_x:install
 
 The generator adds a route and `config/initializers/recording_studio_x.rb`. It does not copy migrations. This gem does not store posts or users.
 
+This gem requires Recording Studio `>= 6.3.0`. The dummy host pins Recording Studio tag `v6.3.0`, FlatPack tag `v0.1.341`, Accessible `v0.24.1`, Trashable `v0.12.2`, Metrics `v0.7.2`, Cache `v0.6.2`, and Root Switchable `v0.11.5`. See `UPGRADING.md` when moving a host from 4.x.
+
 ## Configuration
 
 `RecordingStudio::X::Configuration` reads these environment variables when the object is created.
@@ -47,6 +49,8 @@ end
 ```
 
 A Rails host can also set `config/recording_studio_x.yml` or `config.x.recording_studio_x`. The engine loads YAML first, then `config.x`, then the initializer.
+
+`layout` defaults to `nil`. A `nil` setting uses `RecordingStudio.configuration.layout`, then `recording_studio/default_layout`. Pass a layout name, `false`, or a callable that accepts `controller:`. `RecordingStudio::Layout.accept` validates the value. Call `recording_studio_layout` from the controller. Do not hard-code `layout "recording_studio/default_layout"`.
 
 `configuration.to_h` and `configuration.inspect` report `configured` or `missing`. They do not print secret values.
 
