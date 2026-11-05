@@ -11,7 +11,6 @@
 - Dummy Sign-in and home cards no longer pass FlatPack Card `style:`.
 - Dummy Sign out uses FlatPack Button `href:` so the link is an `<a>` instead of a dead `<button url>`.
 - Root and dummy lockfiles refresh Rails `8.1.4.1`, Rack `>= 3.2.8`, Nokogiri `>= 1.19.5`, Loofah `>= 2.25.3`, and `rails-html-sanitizer` `>= 1.7.2`.
-- Local Ruby is `3.3.13` (`.ruby-version`).
 - Remove template leftovers `UPDATE_SUMMARY.md`, `MIGRATION_NOTES.md`, and `docs/gem_template/`.
 
 ### Upgrade notes

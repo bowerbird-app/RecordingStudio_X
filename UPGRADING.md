@@ -22,7 +22,7 @@
    `call(controller:)`. The dummy no longer sets `config.layout = :application_layout`.
 7. `FlatPack::Card::Component` no longer accepts `style:`. Pass `border:` and
    `variant:`.
-8. Use Ruby `3.3.13` or a later 3.3 patch locally. Rails `8.1.4.1` does not parse
+8. Use Ruby `3.3.6` or a later 3.3 patch locally. Rails `8.1.4.1` does not parse
    on Ruby `3.3.0`.
 
 If you are still on `0.1.7` or older, complete that release's notes first. The

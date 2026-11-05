@@ -27,6 +27,7 @@ class XSearchHomeTest < ActionDispatch::IntegrationTest
     get root_path
 
     assert_response :success
+    assert_select "h1", count: 1
     assert_select "input[name=q]"
     assert_select "input[name=from]"
     assert_select "input[name=to]"

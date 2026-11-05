@@ -33,6 +33,7 @@ class RootSwitchDropdownTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_includes response.body, workspace.name
+    assert_select "h1", count: 1
     assert_select "body[data-recording-studio-default-layout='true']", count: 1
     assert_select "a[href='/users/sign_out'][data-turbo-method='delete']", text: /Sign out/
     assert_select "button[url]", count: 0
