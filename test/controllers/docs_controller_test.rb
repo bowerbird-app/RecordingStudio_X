@@ -19,6 +19,11 @@ class DocsControllerTest < ActionDispatch::IntegrationTest
     end
 
     sign_in @user
+    Current.actor = @user
+  end
+
+  teardown do
+    Current.actor = nil
   end
 
   test "install page renders successfully" do
@@ -75,6 +80,7 @@ class DocsControllerTest < ActionDispatch::IntegrationTest
   test "recordings tree page renders successfully" do
     workspace = Workspace.create!(name: "Tree Workspace")
     root_recording = RecordingStudio.root_recording_for(workspace)
+    bootstrap_owner!(root_recording)
     folder = Folder.create!(name: "Reference")
     folder_recording = record_child(folder, root_recording, root_recording)
     page = Page.create!(title: "API")
@@ -94,6 +100,45 @@ class DocsControllerTest < ActionDispatch::IntegrationTest
     assert_select "[role='treeitem']", minimum: 3
     refute_includes response.body, "Current structure"
     refute_includes response.body, "This tree is generated from RecordingStudio::Recording records"
+  end
+
+  test "recordings tree hides recordings the actor cannot access" do
+    visible = Workspace.create!(name: "Visible Tree Workspace")
+    visible_root = RecordingStudio.root_recording_for(visible)
+    bootstrap_owner!(visible_root)
+
+    hidden = Workspace.create!(name: "Hidden Tree Workspace")
+    RecordingStudio.root_recording_for(hidden)
+
+    get docs_recordings_tree_path
+
+    assert_response :success
+    assert_includes response.body, "Workspace: Visible Tree Workspace"
+    refute_includes response.body, "Workspace: Hidden Tree Workspace"
+  end
+
+  test "recordings tree is empty when the actor has no grants" do
+    RecordingStudio.root_recording_for(Workspace.create!(name: "Orphan Tree Workspace"))
+
+    get docs_recordings_tree_path
+
+    assert_response :success
+    assert_includes response.body, "No active recordings found."
+    refute_includes response.body, "Workspace: Orphan Tree Workspace"
+  end
+
+  test "recordable types counts fail closed when the actor has no grants" do
+    RecordingStudio.root_recording_for(Workspace.create!(name: "Orphan Count Workspace"))
+    Folder.create!(name: "Orphan Count Folder")
+
+    get docs_recordable_types_path
+
+    assert_response :success
+    assert_includes response.body, "Workspace"
+    assert_includes response.body, "Folder"
+    assert_includes response.body, "0 recordings point to this type"
+    assert_includes response.body, "0 recordables in the database"
+    refute_match(/[1-9]\d* recordings point to this type/, response.body)
   end
 
   test "gem_views page renders successfully" do
@@ -129,30 +174,42 @@ class DocsControllerTest < ActionDispatch::IntegrationTest
   private
 
   def create_recordable_type_summary_data
-    workspace_recordings_before = RecordingStudio::Recording.where(recordable_type: "Workspace").count
-    workspaces_before = Workspace.count
-    folder_recordings_before = RecordingStudio::Recording.where(recordable_type: "Folder").count
-    folders_before = Folder.count
+    workspace_recordings_before = accessible_type_recordings("Workspace").count
+    workspaces_before = accessible_type_recordings("Workspace").distinct.count(:recordable_id)
+    folder_recordings_before = accessible_type_recordings("Folder").count
+    folders_before = accessible_type_recordings("Folder").distinct.count(:recordable_id)
 
     workspace = Workspace.create!(name: "Counted Workspace")
+    root_recording = RecordingStudio.root_recording_for(workspace)
+    bootstrap_owner!(root_recording)
+    folder = Folder.create!(name: "Counted Folder")
+    record_child(folder, root_recording, root_recording)
+
     2.times do
       RecordingStudio.root_recording_for(Workspace.create!(name: "Counted Workspace #{SecureRandom.hex(4)}"))
     end
 
-    root_recording = RecordingStudio.root_recording_for(workspace)
-    folder = Folder.create!(name: "Counted Folder")
-    record_child(folder, root_recording, root_recording)
-
     {
       workspace: recordable_type_summary(
-        workspace_recordings_before + 3,
-        workspaces_before + 3
+        workspace_recordings_before + 1,
+        workspaces_before + 1
       ),
       folder: recordable_type_summary(
         folder_recordings_before + 1,
         folders_before + 1
       )
     }
+  end
+
+  def accessible_type_recordings(type_name)
+    ids = RecordingStudioAccessible.root_recordings_for(actor: @user).flat_map do |root|
+      descendant_ids = RecordingStudioAccessible.recordings_for(actor: @user, parent_recording: root)
+                                                .where.not(recordable_type: "RecordingStudio::Access")
+                                                .pluck(:id)
+      [root.id, *descendant_ids]
+    end
+
+    RecordingStudio::Recording.where(id: ids, recordable_type: type_name)
   end
 
   def recordable_type_summary(recording_count, recordable_count)
@@ -165,7 +222,13 @@ class DocsControllerTest < ActionDispatch::IntegrationTest
       action: "created",
       recordable: recordable,
       root_recording: root_recording,
-      parent_recording: parent_recording
+      parent_recording: parent_recording,
+      actor: @user
     ).recording
+  end
+
+  def bootstrap_owner!(recording, actor: @user)
+    result = RecordingStudioAccessible.bootstrap_owner_access!(recording: recording, actor: actor)
+    raise result.error if result.failure?
   end
 end

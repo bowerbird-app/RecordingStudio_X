@@ -17,7 +17,7 @@ class DocsController < ApplicationController
   end
 
   def recordings_tree
-    recordings = RecordingStudio::Recording.includes(:recordable).reorder(:created_at, :id).to_a
+    recordings = accessible_recordings.includes(:recordable).to_a
     recordings_by_parent_id = recordings.group_by(&:parent_recording_id)
 
     @recording_tree = recordings_by_parent_id.fetch(nil, []).map do |recording|
@@ -39,24 +39,48 @@ class DocsController < ApplicationController
   private
 
   def normalize_recordable_declaration(declaration)
+    type_recordings = accessible_recordings.where(recordable_type: declaration.type)
+
     {
       name: declaration.type,
       label: declaration.label,
       root: declaration.root?,
       allowed_parent_types: RecordingStudio.allowed_parent_types_for(declaration.type),
-      recordings_count: RecordingStudio::Recording.where(recordable_type: declaration.type).count,
+      recordings_count: type_recordings.count,
       recordables_count: count_recordables_for(declaration.type)
     }
   end
 
   def count_recordables_for(type_name)
-    recordable_class = type_name.safe_constantize
-    return 0 unless recordable_class&.<= ActiveRecord::Base
-    return 0 unless recordable_class.table_exists?
+    accessible_recordings.where(recordable_type: type_name).distinct.count(:recordable_id)
+  end
 
-    recordable_class.count
-  rescue ActiveRecord::ActiveRecordError
-    0
+  def accessible_recordings
+    @accessible_recordings ||= begin
+      ids = accessible_recording_ids
+      if ids.empty?
+        RecordingStudio::Recording.none
+      else
+        RecordingStudio::Recording.where(id: ids).reorder(:created_at, :id)
+      end
+    end
+  end
+
+  def accessible_recording_ids
+    actor = Current.actor
+    return [] if actor.blank? || !defined?(RecordingStudioAccessible)
+
+    RecordingStudioAccessible.root_recordings_for(actor: actor).flat_map do |root|
+      [root.id, *accessible_descendant_ids(actor: actor, parent: root)]
+    end
+  end
+
+  def accessible_descendant_ids(actor:, parent:)
+    children = RecordingStudioAccessible.recordings_for(actor: actor, parent_recording: parent)
+      .where.not(recordable_type: "RecordingStudio::Access")
+      .reorder(:created_at, :id)
+
+    children.flat_map { |child| [child.id, *accessible_descendant_ids(actor: actor, parent: child)] }
   end
 
   def build_recording_node(recording, recordings_by_parent_id)

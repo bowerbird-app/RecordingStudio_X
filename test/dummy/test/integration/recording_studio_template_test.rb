@@ -63,6 +63,10 @@ class RecordingStudioTemplateTest < ActiveSupport::TestCase
     assert_equal folder_recording, page_recording.parent_recording
     assert_equal root_recording, page_recording.root_recording
     assert_equal 3, Workspace.count
+    admin = User.find_by!(email: "admin@admin.com")
+    [root_recording, accessible_root_recording, private_root_recording].each do |recording|
+      assert RecordingStudioAccessible.authorized?(actor: admin, recording: recording, role: :admin)
+    end
 
     assert_no_difference -> { User.count } do
       assert_no_difference -> { RecordingStudio::Recording.count } do

@@ -1,5 +1,26 @@
 # Upgrading RecordingStudio::X
 
+## Upgrading to 0.3.0
+
+`0.3.0` requires Recording Studio `>= 6.5.0`. Update the host dependency to
+`recording_studio_x` `~> 0.3.0`.
+
+1. No migrations in this gem. X read, OAuth, identity, and AI tool contracts stay the same.
+2. Recording Studio `6.5.0` fails closed on `record!` unless the host sets
+   `config.authorize_write` (or opts out with `allow_unauthorized_writes`).
+   This repository’s dummy authorizer asks Accessible for `:edit` on the root
+   for ordinary writes. Grant and bootstrap writes use Accessible’s
+   `AccessCreationContext` only for `RecordingStudio::Access` recordables.
+3. Dummy `/docs/recordings_tree` and `/docs/recordable_types` counts only
+   recordings the current actor can reach through Accessible. Grant access
+   (for example `bootstrap_owner_access!`) before you expect those pages to
+   show a workspace.
+4. This repository’s dummy host pins Recording Studio `v6.5.0`, FlatPack
+   `v0.1.341`, Accessible `v0.24.2`, Trashable `v0.12.3`, Metrics `v0.7.3`,
+   Cache `v0.6.2`, and Root Switchable `v0.11.5`.
+
+If you are still on `0.2.0` or older, complete that release's notes first.
+
 ## Upgrading to 0.2.0
 
 `0.2.0` requires Recording Studio `>= 6.3.0`. Update the host dependency to
