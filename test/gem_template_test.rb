@@ -4,17 +4,17 @@ require "test_helper"
 
 class RecordingStudioXGemTest < Minitest::Test
   def test_version_matches_release
-    assert_equal "0.2.0", ::RecordingStudio::X::VERSION
+    assert_equal "0.3.0", ::RecordingStudio::X::VERSION
   end
 
   def test_engine_exists
     assert_kind_of Class, ::RecordingStudio::X::Engine
   end
 
-  def test_gemspec_requires_recording_studio_6_3
+  def test_gemspec_requires_recording_studio_6_5
     gemspec = File.read(File.expand_path("../recording_studio_x.gemspec", __dir__))
 
-    assert_includes gemspec, 'spec.add_dependency "recording_studio", ">= 6.3.0"'
+    assert_includes gemspec, 'spec.add_dependency "recording_studio", ">= 6.5.0"'
     refute_includes gemspec, '"~> 4.2"'
     refute_includes gemspec, '"< 5"'
   end
@@ -46,11 +46,11 @@ class RecordingStudioXGemTest < Minitest::Test
   def test_dummy_gemfile_pins_verified_6x_github_tags
     gemfile = File.read(File.expand_path("dummy/Gemfile", __dir__))
 
-    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio", tag: "v6.3.0"'
-    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_accessible", tag: "v0.24.1"'
-    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_trashable", tag: "v0.12.2"'
+    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio", tag: "v6.5.0"'
+    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_accessible", tag: "v0.24.2"'
+    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_trashable", tag: "v0.12.3"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_root_switchable", tag: "v0.11.5"'
-    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_metrics", tag: "v0.7.2"'
+    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_metrics", tag: "v0.7.3"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_cache", tag: "v0.6.2"'
     assert_includes gemfile, 'github: "bowerbird-app/flatpack", tag: "v0.1.341"'
     refute_includes gemfile, "recording_studio/v3.0.0"
@@ -70,7 +70,7 @@ class RecordingStudioXGemTest < Minitest::Test
     refute_includes initializer, "config.layout ="
 
     root_gemfile = File.read(File.expand_path("../Gemfile", __dir__))
-    assert_includes root_gemfile, 'github: "bowerbird-app/RecordingStudio", tag: "v6.3.0"'
+    assert_includes root_gemfile, 'github: "bowerbird-app/RecordingStudio", tag: "v6.5.0"'
     assert_includes root_gemfile, 'github: "bowerbird-app/flatpack", tag: "v0.1.341"'
   end
 

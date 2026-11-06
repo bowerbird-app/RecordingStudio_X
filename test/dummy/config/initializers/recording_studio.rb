@@ -13,6 +13,15 @@ RecordingStudio.configure do |config|
   # Actor resolver for events when no actor is explicitly supplied
   config.actor = -> { Current.actor }
 
+  # Recording Studio 6.5+ fails closed unless a write authorizer is set.
+  config.authorize_write = lambda { |root_recording:, actor:, **|
+    next false unless defined?(RecordingStudioAccessible)
+    next false if actor.blank? || root_recording.blank?
+    next true if RecordingStudioAccessible::AccessCreationContext.allowed?
+
+    RecordingStudioAccessible.authorized?(actor: actor, recording: root_recording, role: :edit)
+  }
+
   # Emit ActiveSupport::Notifications events
   config.event_notifications_enabled = true
 

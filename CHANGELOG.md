@@ -2,6 +2,17 @@
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-11-06
+
+### Changed
+- Require `recording_studio` `>= 6.5.0`. The root and dummy bundles pin Recording Studio tag `v6.5.0` and FlatPack tag `v0.1.341`.
+- Dummy companion pins: Accessible `v0.24.2`, Trashable `v0.12.3`, Metrics `v0.7.3`, Cache `v0.6.2`, Root Switchable `v0.11.5`.
+- Dummy `/docs/recordings_tree` and `/docs/recordable_types` list and count only recordings the signed-in actor can reach through Accessible (`root_recordings_for` / `recordings_for`). Missing actor or Accessible yields an empty tree and zero counts.
+- Dummy `authorize_write` calls Accessible `:edit` (grant writes still go through Accessible's access-creation context). Seeds bootstrap the admin user on the three workspace roots.
+
+### Upgrade notes
+- See `UPGRADING.md`. Hosts must run Recording Studio `>= 6.5.0`. Dummy docs no longer show every recording in the database.
+
 ## [0.2.0] - 2026-11-05
 
 ### Changed
@@ -58,7 +69,8 @@
 * The dummy home search can limit results to a date range and order them by newest or best match. Dates inside the last 7 days use recent search. Older dates use full-archive search.
 * The engine application controller lives at `app/controllers/recording_studio/x` so eager load matches `RecordingStudio::X`.
 
-[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_X/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_X/compare/v0.3.0...HEAD
+[0.3.0]: https://github.com/bowerbird-app/RecordingStudio_X/releases/tag/v0.3.0
 [0.2.0]: https://github.com/bowerbird-app/RecordingStudio_X/releases/tag/v0.2.0
 [0.1.7]: https://github.com/bowerbird-app/RecordingStudio_X/releases/tag/v0.1.7
 [0.1.6]: https://github.com/bowerbird-app/RecordingStudio_X/releases/tag/v0.1.6
