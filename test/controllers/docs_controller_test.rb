@@ -190,8 +190,8 @@ class DocsControllerTest < ActionDispatch::IntegrationTest
   def accessible_type_recordings(type_name)
     ids = RecordingStudioAccessible.root_recordings_for(actor: @user).flat_map do |root|
       descendant_ids = RecordingStudioAccessible.recordings_for(actor: @user, parent_recording: root)
-        .where.not(recordable_type: "RecordingStudio::Access")
-        .pluck(:id)
+                                                .where.not(recordable_type: "RecordingStudio::Access")
+                                                .pluck(:id)
       [root.id, *descendant_ids]
     end
 
