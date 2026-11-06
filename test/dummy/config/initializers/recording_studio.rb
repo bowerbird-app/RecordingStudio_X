@@ -14,12 +14,30 @@ RecordingStudio.configure do |config|
   config.actor = -> { Current.actor }
 
   # Recording Studio 6.5+ fails closed unless a write authorizer is set.
-  config.authorize_write = lambda { |root_recording:, actor:, **|
+  # Access grant/bootstrap writes go through Accessible's AccessCreationContext
+  # (same path as grant_access / bootstrap_owner_access!), not a logged-in check.
+  # Other writes need :edit on the root. AccessCreationContext must not open
+  # Folder/Page writes during grant-creation.
+  config.authorize_write = lambda { |actor:, root_recording:, recordable:, **|
     next false unless defined?(RecordingStudioAccessible)
-    next false if actor.blank? || root_recording.blank?
-    next true if RecordingStudioAccessible::AccessCreationContext.allowed?
+    next false unless actor.is_a?(User) && actor.persisted?
+    next false unless root_recording
 
-    RecordingStudioAccessible.authorized?(actor: actor, recording: root_recording, role: :edit)
+    if defined?(RecordingStudio::Access) && recordable.is_a?(RecordingStudio::Access)
+      next true if RecordingStudioAccessible::AccessCreationContext.allowed?
+
+      RecordingStudioAccessible.authorized?(
+        actor: actor,
+        recording: root_recording,
+        role: :admin
+      )
+    else
+      RecordingStudioAccessible.authorized?(
+        actor: actor,
+        recording: root_recording,
+        role: :edit
+      )
+    end
   }
 
   # Emit ActiveSupport::Notifications events

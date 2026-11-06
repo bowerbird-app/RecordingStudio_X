@@ -8,7 +8,7 @@
 - Require `recording_studio` `>= 6.5.0`. The root and dummy bundles pin Recording Studio tag `v6.5.0` and FlatPack tag `v0.1.341`.
 - Dummy companion pins: Accessible `v0.24.2`, Trashable `v0.12.3`, Metrics `v0.7.3`, Cache `v0.6.2`, Root Switchable `v0.11.5`.
 - Dummy `/docs/recordings_tree` and `/docs/recordable_types` list and count only recordings the signed-in actor can reach through Accessible (`root_recordings_for` / `recordings_for`). Missing actor or Accessible yields an empty tree and zero counts.
-- Dummy `authorize_write` calls Accessible `:edit` (grant writes still go through Accessible's access-creation context). Seeds bootstrap the admin user on the three workspace roots.
+- Dummy `authorize_write` calls Accessible `:edit` on the root for ordinary writes. Access grant/bootstrap writes use `AccessCreationContext` only when the recordable is `RecordingStudio::Access`. Seeds bootstrap the admin user on the three workspace roots.
 
 ### Upgrade notes
 - See `UPGRADING.md`. Hosts must run Recording Studio `>= 6.5.0`. Dummy docs no longer show every recording in the database.

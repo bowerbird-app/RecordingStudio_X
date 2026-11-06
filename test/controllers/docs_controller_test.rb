@@ -127,6 +127,20 @@ class DocsControllerTest < ActionDispatch::IntegrationTest
     refute_includes response.body, "Workspace: Orphan Tree Workspace"
   end
 
+  test "recordable types counts fail closed when the actor has no grants" do
+    RecordingStudio.root_recording_for(Workspace.create!(name: "Orphan Count Workspace"))
+    Folder.create!(name: "Orphan Count Folder")
+
+    get docs_recordable_types_path
+
+    assert_response :success
+    assert_includes response.body, "Workspace"
+    assert_includes response.body, "Folder"
+    assert_includes response.body, "0 recordings point to this type"
+    assert_includes response.body, "0 recordables in the database"
+    refute_match(/[1-9]\d* recordings point to this type/, response.body)
+  end
+
   test "gem_views page renders successfully" do
     get docs_gem_views_path
     assert_response :success

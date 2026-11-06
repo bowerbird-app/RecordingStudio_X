@@ -8,7 +8,9 @@
 1. No migrations in this gem. X read, OAuth, identity, and AI tool contracts stay the same.
 2. Recording Studio `6.5.0` fails closed on `record!` unless the host sets
    `config.authorize_write` (or opts out with `allow_unauthorized_writes`).
-   This repository’s dummy authorizer asks Accessible for `:edit` on the root.
+   This repository’s dummy authorizer asks Accessible for `:edit` on the root
+   for ordinary writes. Grant and bootstrap writes use Accessible’s
+   `AccessCreationContext` only for `RecordingStudio::Access` recordables.
 3. Dummy `/docs/recordings_tree` and `/docs/recordable_types` counts only
    recordings the current actor can reach through Accessible. Grant access
    (for example `bootstrap_owner_access!`) before you expect those pages to
