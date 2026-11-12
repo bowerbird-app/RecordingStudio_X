@@ -9,6 +9,7 @@ This Rails app exists to validate the Recording Studio addon template in a real 
 - Root workspace plus seeded folder and page recordables, with Accessible grants for `admin@admin.com`. Dummy `authorize_write` asks Accessible for `:edit` on the root; grant writes use Accessible’s access-creation context only for `RecordingStudio::Access`.
 - Recording Studio default layout, FlatPack assets, and Tailwind source scanning
 - Mounted `RecordingStudio::Engine` route behavior inside a host app
+- Development and test also mount Recording Studio API at `/recording_studio_api` for the four X read endpoints
 - Dummy-only `/docs/*` pages for gem-specific onboarding
 
 ## Quick Start
@@ -35,6 +36,7 @@ Then open the app and sign in with:
 - `/recording_studio` - redirects to `/` while the mounted Recording Studio engine stays available under that prefix for non-root routes
 - `/users/sign_in` - Devise sign-in page
 - `/docs/install`, `/docs/config`, `/docs/recordable_types`, `/docs/recordings_tree`, `/docs/gem_views`, `/docs/methods` - dummy-only starter pages. Tree and type counts use Accessible, so you only see workspaces you can reach.
+- `/recording_studio_api` - Recording Studio API in development and test (`x_search` and the other X reads)
 - `/up` - Rails health check
 
 ## Why This App Exists

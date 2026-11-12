@@ -2,7 +2,12 @@
 
 RecordingStudio.configure do |config|
   # Registered delegated_type recordables (strings or classes)
-  config.recordable_types = [ "Workspace", "Folder", "Page" ]
+  config.recordable_types = [
+    "Workspace",
+    "Folder",
+    "Page",
+    "RecordingStudioApi::AdminApi"
+  ]
 
   # Require each configured ActiveRecord type to call recording_studio_recordable.
   config.require_recordable_declarations = true
@@ -20,7 +25,7 @@ RecordingStudio.configure do |config|
   # Folder/Page writes during grant-creation.
   config.authorize_write = lambda { |actor:, root_recording:, recordable:, **|
     next false unless defined?(RecordingStudioAccessible)
-    next false unless actor.is_a?(User) && actor.persisted?
+    next false unless actor.respond_to?(:persisted?) && actor.persisted?
     next false unless root_recording
 
     if defined?(RecordingStudio::Access) && recordable.is_a?(RecordingStudio::Access)
