@@ -12,10 +12,6 @@
 - Dummy host mounts Recording Studio API `v0.21.3` in development and test, with the
   companion pins that API needs to boot.
 
-### Changed
-- AI tools authorize the caller for `:view` on the request root through Accessible
-  (`access_grant.authorize!` when the API grant is present) before calling X.
-
 ### Upgrade notes
 - See `UPGRADING.md`. Hosts that already mount Recording Studio API get the four
   X reads on each named API. Callers need `:view` on the access grant's root.

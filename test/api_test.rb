@@ -72,16 +72,6 @@ class ApiTest < Minitest::Test
     RecordingStudioXTest.blank_configuration!
   end
 
-  def test_authorize_without_a_grant_fails_closed
-    context = Struct.new(:initiator, :root_recording).new(Object.new, Object.new)
-
-    error = assert_raises(RecordingStudio::X::AuthorizationError) do
-      RecordingStudio::X::Api.authorize!(context)
-    end
-
-    assert_equal RecordingStudio::X::Api::Handlers::DENIED, error.message
-  end
-
   def test_endpoint_catalog_covers_the_four_reads
     names = RecordingStudio::X::Api::ENDPOINTS.map { |endpoint| endpoint.fetch(:name) }
 

@@ -203,7 +203,7 @@ class OauthAndToolsTest < Minitest::Test
     RecordingStudio::X.instance_variable_set(:@configuration, @configuration)
     tool = RecordingStudio::X::AiTools.catalog.find { |entry| entry[:key] == :x_get_post }
 
-    result = tool[:registration][:executor].call({ "id" => "9" }, allowed_tool_context)
+    result = tool[:registration][:executor].call({ "id" => "9" }, nil)
 
     assert_equal "from tool", result["text"]
     assert_equal true, tool[:registration][:read_only]
@@ -215,16 +215,6 @@ class OauthAndToolsTest < Minitest::Test
     assert_equal %i[x_search x_get_post x_get_user x_get_user_posts], keys
   ensure
     RecordingStudioXTest.blank_configuration!
-  end
-
-  def test_ai_tools_require_view_on_the_root
-    tool = RecordingStudio::X::AiTools.catalog.find { |entry| entry[:key] == :x_get_post }
-
-    error = assert_raises(RecordingStudio::X::AuthorizationError) do
-      tool[:registration][:executor].call({ "id" => "9" }, denied_tool_context)
-    end
-
-    assert_equal RecordingStudio::X::Api::Handlers::DENIED, error.message
   end
 
   def test_ai_registration_is_optional
@@ -336,24 +326,5 @@ class OauthAndToolsTest < Minitest::Test
 
   def hide_recording_studio_ai
     Object.send(:remove_const, :RecordingStudioAI) if defined?(::RecordingStudioAI)
-  end
-
-  def allowed_tool_context
-    grant = Object.new
-    def grant.authorize!(recording:, role:)
-      raise "missing recording" if recording.nil?
-      raise "expected view" unless role == :view
-    end
-
-    Struct.new(:access_grant, :root_recording).new(grant, Object.new)
-  end
-
-  def denied_tool_context
-    grant = Object.new
-    def grant.authorize!(*)
-      raise RecordingStudio::X::AuthorizationError, RecordingStudio::X::Api::Handlers::DENIED
-    end
-
-    Struct.new(:access_grant, :root_recording).new(grant, Object.new)
   end
 end

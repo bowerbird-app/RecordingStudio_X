@@ -12,9 +12,7 @@ host dependency to `recording_studio_x` `~> 0.4.0`.
 3. Those endpoints authorize with the request `AccessGrant` at `:view` on the
    root recording. They use host X application credentials after that check.
    Identity, OAuth, diagnose, and paid archive search stay off the API.
-4. AI tools now fail closed unless the caller can `:view` the root. Pass the
-   tool context from Recording Studio AI or an API grant.
-5. This repository’s dummy host still pins Recording Studio `v6.5.0` and
+4. This repository’s dummy host still pins Recording Studio `v6.5.0` and
    FlatPack `v0.1.341`. Development and test also pin Recording Studio API
    `v0.21.3`, Logs `v0.7.4`, Moveable `v4.1.1`, Icons `v0.2.1`, Admin `v2.12.1`,
    and Redis `~> 5.3`.

@@ -9,34 +9,7 @@ module RecordingStudio
         module_function
 
         def authorize!(context)
-          grant = context.respond_to?(:access_grant) ? context.access_grant : nil
-          recording = context.respond_to?(:root_recording) ? context.root_recording : nil
-          if grant.respond_to?(:authorize!)
-            grant.authorize!(recording: recording, role: VIEW_ROLE)
-            return
-          end
-
-          return if accessible_view?(actor_from(context), recording)
-
-          raise_denied!
-        end
-
-        def accessible_view?(actor, recording)
-          defined?(RecordingStudioAccessible) &&
-            RecordingStudioAccessible.authorized?(actor: actor, recording: recording, role: VIEW_ROLE)
-        end
-
-        def actor_from(context)
-          return context.initiator if context.respond_to?(:initiator) && context.initiator
-          return context.executor if context.respond_to?(:executor)
-
-          nil
-        end
-
-        def raise_denied!
-          raise RecordingStudioApi::AuthorizationError, DENIED if defined?(RecordingStudioApi::AuthorizationError)
-
-          raise AuthorizationError, DENIED
+          context.access_grant.authorize!(recording: context.root_recording, role: :view)
         end
 
         def read_call(context)

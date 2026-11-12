@@ -5,6 +5,7 @@ module RecordingStudio
     class Engine < ::Rails::Engine
       isolate_namespace RecordingStudio::X
       engine_name "recording_studio_x"
+
       class << self
         def apply_model_extensions(target)
           apply_extensions(target, extensions_for(:model, extension_keys_for(target)))
@@ -82,10 +83,9 @@ module RecordingStudio
           applied[extension] = true
         end
 
-        def extension_keys_for(target)
-          [target.name, target.name&.demodulize].compact.uniq.map(&:to_sym)
-        end
+        def extension_keys_for(target) = [target.name, target.name&.demodulize].compact.uniq.map(&:to_sym)
       end
+
       initializer "recording_studio_x.before_initialize", before: "recording_studio_x.load_config" do |_app|
         RecordingStudio::X.configuration.hooks.run(:before_initialize, self)
       end
@@ -101,7 +101,11 @@ module RecordingStudio
       end
 
       initializer "recording_studio_x.prepare" do
-        config.to_prepare { Engine.boot_integrations }
+        config.to_prepare do
+          AiTools.register!
+          Api.register!
+          Oauth.install_strategy!
+        end
       end
 
       initializer "recording_studio_x.apply_model_extensions" do
@@ -125,12 +129,6 @@ module RecordingStudio
           end
         end
       end
-    end
-
-    def Engine.boot_integrations
-      AiTools.register!
-      Api.register!
-      Oauth.install_strategy!
     end
   end
 end

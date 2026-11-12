@@ -79,6 +79,59 @@ class XApiEndpointsTest < ActionDispatch::IntegrationTest
     assert_equal "Hello from the search", JSON.parse(response.body).fetch("items").first.fetch("text")
   end
 
+  test "x_search and x_get_user_posts follow the next-page cursor" do
+    token = issue_token.fetch(:token)
+    search_calls = []
+    @configuration.transport = lambda do |env|
+      search_calls << env
+      json_result(200, search_page_body(search_calls.length))
+    end
+
+    get "/recording_studio_api/api/v1/x/search",
+        params: { query: "BowerBird" },
+        headers: bearer_headers(token)
+
+    assert_response :success
+    first_search = JSON.parse(response.body)
+    assert_equal "Hello from the search", first_search.fetch("items").first.fetch("text")
+    assert_equal "next-page", first_search.fetch("next_cursor")
+
+    get "/recording_studio_api/api/v1/x/search",
+        params: { query: "BowerBird", cursor: first_search.fetch("next_cursor") },
+        headers: bearer_headers(token)
+
+    assert_response :success
+    second_search = JSON.parse(response.body)
+    assert_equal "Second search page", second_search.fetch("items").first.fetch("text")
+    assert_nil second_search["next_cursor"]
+    assert_includes search_calls.last[:url], "next_token=next-page"
+
+    posts_calls = []
+    @configuration.transport = lambda do |env|
+      posts_calls << env
+      json_result(200, search_page_body(posts_calls.length))
+    end
+
+    get "/recording_studio_api/api/v1/x/users/7/posts",
+        params: { max_results: 5 },
+        headers: bearer_headers(token)
+
+    assert_response :success
+    first_posts = JSON.parse(response.body)
+    assert_equal "Hello from the search", first_posts.fetch("items").first.fetch("text")
+    assert_equal "next-page", first_posts.fetch("next_cursor")
+
+    get "/recording_studio_api/api/v1/x/users/7/posts",
+        params: { max_results: 5, cursor: first_posts.fetch("next_cursor") },
+        headers: bearer_headers(token)
+
+    assert_response :success
+    second_posts = JSON.parse(response.body)
+    assert_equal "Second search page", second_posts.fetch("items").first.fetch("text")
+    assert_nil second_posts["next_cursor"]
+    assert_includes posts_calls.last[:url], "pagination_token=next-page"
+  end
+
   test "x_search returns 401 without a token" do
     get "/recording_studio_api/api/v1/x/search", params: { query: "BowerBird" }
 
@@ -150,16 +203,22 @@ class XApiEndpointsTest < ActionDispatch::IntegrationTest
   end
 
   def search_body
+    search_page_body(1)
+  end
+
+  def search_page_body(page)
+    text = page == 1 ? "Hello from the search" : "Second search page"
+    meta = page == 1 ? { "next_token" => "next-page" } : {}
     {
       "data" => [{
-        "id" => "1001",
-        "text" => "Hello from the search",
+        "id" => page == 1 ? "1001" : "1002",
+        "text" => text,
         "author_id" => "7",
         "created_at" => "2026-09-01T00:00:00Z",
         "public_metrics" => { "like_count" => 3 }
       }],
       "includes" => { "users" => [{ "id" => "7", "username" => "ada", "name" => "Ada" }] },
-      "meta" => { "next_token" => "next-page" }
+      "meta" => meta
     }
   end
 

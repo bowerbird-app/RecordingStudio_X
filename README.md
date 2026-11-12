@@ -179,11 +179,6 @@ If `RecordingStudioAI` is loaded, the engine registers four tools on `to_prepare
 
 Each registration sets `read_only` true, `destructive` false, `requires_confirmation` false, and `idempotent` true. The catalog entry also exposes `access`, `authentication`, `scopes`, and `side_effects`. Executors return JSON-ready hashes. Search and user posts return one page, including `next_cursor`.
 
-Each executor authorizes `:view` on the caller’s root before it calls X. If the
-tool context has an API `access_grant`, that grant’s `authorize!` is the check.
-Otherwise Accessible checks the initiator (or executor) against the root. Host
-application credentials still make the X request after that.
-
 `RecordingStudioAI` denies a custom tool until the host sets an auth handler. This gem does not change that handler. A write tool is not registered.
 
 ## Recording Studio API
