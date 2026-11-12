@@ -20,7 +20,7 @@ bin/rails generate recording_studio_x:install
 
 The generator adds a route and `config/initializers/recording_studio_x.rb`. It does not copy migrations. This gem does not store posts or users.
 
-This gem requires Recording Studio `>= 6.5.0`. The dummy host pins Recording Studio tag `v6.5.0`, FlatPack tag `v0.1.341`, Accessible `v0.24.2`, Trashable `v0.12.3`, Metrics `v0.7.3`, Cache `v0.6.2`, and Root Switchable `v0.11.5`. Dummy `/docs` pages list recordings the signed-in actor can reach through Accessible. See `UPGRADING.md` when moving a host from 4.x.
+This gem requires Recording Studio `>= 6.5.0`. The dummy host pins Recording Studio tag `v6.5.0`, FlatPack tag `v0.1.341`, Accessible `v0.24.2`, Trashable `v0.12.3`, Metrics `v0.7.3`, Cache `v0.6.2`, and Root Switchable `v0.11.5`. Development and test also mount Recording Studio API `v0.21.3` (Logs `v0.7.4`, Moveable `v4.1.1`, Icons `v0.2.1`, Admin `v2.12.1`, Redis `~> 5.3`). Dummy `/docs` pages list recordings the signed-in actor can reach through Accessible. See `UPGRADING.md` when moving a host from 4.x.
 
 ## Configuration
 
@@ -180,6 +180,31 @@ If `RecordingStudioAI` is loaded, the engine registers four tools on `to_prepare
 Each registration sets `read_only` true, `destructive` false, `requires_confirmation` false, and `idempotent` true. The catalog entry also exposes `access`, `authentication`, `scopes`, and `side_effects`. Executors return JSON-ready hashes. Search and user posts return one page, including `next_cursor`.
 
 `RecordingStudioAI` denies a custom tool until the host sets an auth handler. This gem does not change that handler. A write tool is not registered.
+
+## Recording Studio API
+
+When `RecordingStudioApi` is loaded, the engine registers four GET endpoints on
+each named API. They are thin wrappers over `RecordingStudio::X.search`,
+`.post`, `.user`, and `.user_posts`. Authorization is the request
+`AccessGrant` at `:view` on the root recording. This gem does not depend on
+Recording Studio API at runtime. OpenAPI summaries are type-first, for example
+`X - Search posts`. A later register of the same handler is skipped. A foreign
+handler is left for Recording Studio API to reject.
+
+| Endpoint | Path | Domain method |
+| --- | --- | --- |
+| `x_search` | `GET …/x/search` | `RecordingStudio::X.search` |
+| `x_get_post` | `GET …/x/posts/:id` | `RecordingStudio::X.post` |
+| `x_get_user` | `GET …/x/users` | `RecordingStudio::X.user` |
+| `x_get_user_posts` | `GET …/x/users/:id/posts` | `RecordingStudio::X.user_posts` |
+
+Identity, OAuth, diagnose, and `archive: true` search are not registered.
+Recording Studio MCP advertises registered API endpoints on its own. Do not add
+MCP tools in this gem.
+
+Mount Recording Studio API in the host and provision a client under a workspace
+that has `:accessible` and `:api_access_point`. Callers need `:view` on that
+root. Dummy development and test mount the engine at `/recording_studio_api`.
 
 ## OAuth for a connected account
 

@@ -2,6 +2,23 @@
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-11-12
+
+### Added
+- Register four Recording Studio API read endpoints when `RecordingStudioApi` is loaded:
+  `x_search`, `x_get_post`, `x_get_user`, and `x_get_user_posts`. They wrap
+  `RecordingStudio::X.search`, `.post`, `.user`, and `.user_posts`. MCP advertises
+  registered endpoints on its own; this gem does not add MCP tools. A second
+  register of the same handler is skipped. A foreign handler is left for
+  Recording Studio API to reject. OpenAPI summaries are type-first
+  (`X - Search posts`).
+- Dummy host mounts Recording Studio API `v0.21.3` in development and test, with the
+  companion pins that API needs to boot.
+
+### Upgrade notes
+- See `UPGRADING.md`. Hosts that already mount Recording Studio API get the four
+  X reads on each named API. Callers need `:view` on the access grant's root.
+
 ## [0.3.0] - 2026-11-06
 
 ### Changed
@@ -69,7 +86,8 @@
 * The dummy home search can limit results to a date range and order them by newest or best match. Dates inside the last 7 days use recent search. Older dates use full-archive search.
 * The engine application controller lives at `app/controllers/recording_studio/x` so eager load matches `RecordingStudio::X`.
 
-[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_X/compare/v0.3.0...HEAD
+[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_X/compare/v0.4.0...HEAD
+[0.4.0]: https://github.com/bowerbird-app/RecordingStudio_X/releases/tag/v0.4.0
 [0.3.0]: https://github.com/bowerbird-app/RecordingStudio_X/releases/tag/v0.3.0
 [0.2.0]: https://github.com/bowerbird-app/RecordingStudio_X/releases/tag/v0.2.0
 [0.1.7]: https://github.com/bowerbird-app/RecordingStudio_X/releases/tag/v0.1.7

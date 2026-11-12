@@ -1,5 +1,24 @@
 # Upgrading RecordingStudio::X
 
+## Upgrading to 0.4.0
+
+`0.4.0` exposes the four application X reads on Recording Studio API. Update the
+host dependency to `recording_studio_x` `~> 0.4.0`.
+
+1. No migrations in this gem. X read, OAuth, and identity method bodies stay the same.
+2. If the host loads `recording_studio_api`, this gem registers `x_search`,
+   `x_get_post`, `x_get_user`, and `x_get_user_posts` on each named API. MCP lists
+   those endpoints automatically. Do not add MCP tools in this gem.
+3. Those endpoints authorize with the request `AccessGrant` at `:view` on the
+   root recording. They use host X application credentials after that check.
+   Identity, OAuth, diagnose, and paid archive search stay off the API.
+4. This repository’s dummy host still pins Recording Studio `v6.5.0` and
+   FlatPack `v0.1.341`. Development and test also pin Recording Studio API
+   `v0.21.3`, Logs `v0.7.4`, Moveable `v4.1.1`, Icons `v0.2.1`, Admin `v2.12.1`,
+   and Redis `~> 5.3`.
+
+If you are still on `0.3.0` or older, complete that release's notes first.
+
 ## Upgrading to 0.3.0
 
 `0.3.0` requires Recording Studio `>= 6.5.0`. Update the host dependency to
