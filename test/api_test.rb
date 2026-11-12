@@ -33,31 +33,6 @@ class ApiTest < Minitest::Test
     RecordingStudioXTest.blank_configuration!
   end
 
-  def test_handlers_deny_without_view
-    error = assert_raises(RecordingStudio::X::AuthorizationError) do
-      RecordingStudio::X::Api::Handlers::Post.call(context(allow: false, params: { id: "9" }))
-    end
-
-    assert_equal RecordingStudio::X::Api::Handlers::DENIED, error.message
-  end
-
-  def test_user_handler_rejects_missing_identifiers_as_invalid_request
-    created = !defined?(RecordingStudioApi)
-    if created
-      api = Module.new
-      api.const_set(:InvalidActionInputError, Class.new(RecordingStudio::X::InvalidRequestError))
-      Object.const_set(:RecordingStudioApi, api)
-    end
-
-    error = assert_raises(RecordingStudio::X::InvalidRequestError) do
-      RecordingStudio::X::Api::Handlers::User.call(context(params: { username: nil, id: nil }))
-    end
-
-    assert_match(/id or a username/, error.message)
-  ensure
-    Object.send(:remove_const, :RecordingStudioApi) if created
-  end
-
   def test_user_posts_handler_returns_a_page
     configuration = RecordingStudioXTest.blank_configuration!
     configuration.bearer_token = "app-bearer"
@@ -87,7 +62,7 @@ class ApiTest < Minitest::Test
     assert_equal %i[x_search x_get_post x_get_user x_get_user_posts], names
     RecordingStudio::X::Api::ENDPOINTS.each do |endpoint|
       assert_equal false, endpoint.dig(:input_contract, :reject_unknown)
-      assert endpoint.dig(:openapi, :summary)
+      assert_match(/\AX - /, endpoint.dig(:openapi, :summary))
       assert endpoint.dig(:openapi, :description)
       assert(endpoint.dig(:openapi, :parameters).all? { |parameter| parameter[:description].present? })
     end
@@ -95,17 +70,11 @@ class ApiTest < Minitest::Test
 
   private
 
-  def context(params:, allow: true)
+  def context(params:)
     grant = Object.new
-    if allow
-      def grant.authorize!(recording:, role:)
-        raise "missing recording" if recording.nil?
-        raise "expected view" unless role == :view
-      end
-    else
-      def grant.authorize!(*)
-        raise RecordingStudio::X::AuthorizationError, RecordingStudio::X::Api::Handlers::DENIED
-      end
+    def grant.authorize!(recording:, role:)
+      raise "missing recording" if recording.nil?
+      raise "expected view" unless role == :view
     end
 
     Struct.new(:access_grant, :root_recording, :params).new(grant, Object.new, params)

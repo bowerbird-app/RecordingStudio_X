@@ -39,7 +39,7 @@ module RecordingStudio
 
         def self.search_openapi
           Api.openapi(
-            "Search X posts",
+            "Search posts",
             "Searches public posts from the last 7 days. X query syntax is passed through. One page.",
             [
               Api.query_param("query", "X recent-search query.", required: true),
@@ -50,12 +50,12 @@ module RecordingStudio
         end
 
         def self.post_openapi
-          Api.openapi("Get an X post", "Loads one public post by id.", [Api.path_param("id", "X post id.")])
+          Api.openapi("Get a post", "Loads one public post by id.", [Api.path_param("id", "X post id.")])
         end
 
         def self.user_openapi
           Api.openapi(
-            "Get an X user",
+            "Get a user",
             "Loads a public user by username or id. Pass one of those, not both.",
             [Api.query_param("username", "X username without @."), Api.query_param("id", "X user id.")]
           )
@@ -63,7 +63,7 @@ module RecordingStudio
 
         def self.user_posts_openapi
           Api.openapi(
-            "Get posts by an X user",
+            "Get posts by a user",
             "Loads a page of posts authored by a user id.",
             [
               Api.path_param("id", "X user id."),

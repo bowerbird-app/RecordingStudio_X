@@ -4,8 +4,6 @@ module RecordingStudio
   module X
     module Api
       module Handlers
-        DENIED = "API access grant is not authorized for this capability"
-
         module_function
 
         def authorize!(context)

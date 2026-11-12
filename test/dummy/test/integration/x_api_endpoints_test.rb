@@ -152,6 +152,9 @@ class XApiEndpointsTest < ActionDispatch::IntegrationTest
         headers: bearer_headers(issued.fetch(:token))
 
     assert_response :forbidden
+    error = JSON.parse(response.body).fetch("error")
+    assert_equal "forbidden", error.fetch("code")
+    assert_equal "API access grant is not authorized for this capability", error.fetch("message")
   end
 
   test "x_search returns 422 when query is missing" do
@@ -160,6 +163,34 @@ class XApiEndpointsTest < ActionDispatch::IntegrationTest
 
     assert_response :unprocessable_entity
     assert_equal "invalid_input", JSON.parse(response.body).dig("error", "code")
+  end
+
+  test "x_get_user returns 422 when username and id are both missing" do
+    get "/recording_studio_api/api/v1/x/users",
+        headers: bearer_headers(issue_token.fetch(:token))
+
+    assert_response :unprocessable_entity
+    assert_equal "invalid_input", JSON.parse(response.body).dig("error", "code")
+  end
+
+  test "register! is a no-op when the existing handler is ours" do
+    RecordingStudio::X::Api.register!
+    assert_equal RecordingStudio::X::Api::Handlers::Search,
+                 RecordingStudioApi.registered_endpoint(:x_search).handler
+  end
+
+  test "register! raises ConfigurationError when a foreign handler owns the name" do
+    endpoint = RecordingStudioApi.registered_endpoint(:x_search)
+    original = endpoint.handler
+    endpoint.instance_variable_set(:@handler, Object.new)
+
+    error = assert_raises(RecordingStudioApi::ConfigurationError) do
+      RecordingStudio::X::Api.register!
+    end
+
+    assert_match(/already registered with a different handler/, error.message)
+  ensure
+    endpoint&.instance_variable_set(:@handler, original)
   end
 
   private
