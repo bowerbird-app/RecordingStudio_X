@@ -49,13 +49,20 @@ module RecordingStudio
         { read_only: capability.read?, destructive: false, requires_confirmation: false, idempotent: true }
       end
 
+      EXECUTORS = {
+        x_search: ->(arguments, context) { run(context) { search_page(arguments) } },
+        x_get_post: ->(arguments, context) { run(context) { Reads.post(arguments.fetch("id")).to_h } },
+        x_get_user: ->(arguments, context) { run(context) { user_record(arguments).to_h } },
+        x_get_user_posts: ->(arguments, context) { run(context) { user_posts_page(arguments) } }
+      }.freeze
+
       def self.executor(key)
-        {
-          x_search: ->(arguments, _context) { search_page(arguments) },
-          x_get_post: ->(arguments, _context) { Reads.post(arguments.fetch("id")).to_h },
-          x_get_user: ->(arguments, _context) { user_record(arguments).to_h },
-          x_get_user_posts: ->(arguments, _context) { user_posts_page(arguments) }
-        }.fetch(key)
+        EXECUTORS.fetch(key)
+      end
+
+      def self.run(context)
+        Api.authorize!(context)
+        yield
       end
 
       def self.search_page(arguments)

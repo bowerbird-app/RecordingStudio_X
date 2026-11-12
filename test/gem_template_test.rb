@@ -4,7 +4,7 @@ require "test_helper"
 
 class RecordingStudioXGemTest < Minitest::Test
   def test_version_matches_release
-    assert_equal "0.3.0", ::RecordingStudio::X::VERSION
+    assert_equal "0.4.0", ::RecordingStudio::X::VERSION
   end
 
   def test_engine_exists
@@ -60,8 +60,12 @@ class RecordingStudioXGemTest < Minitest::Test
     refute_includes gemfile, 'tag: "v0.1.133"'
     refute_includes gemfile, 'tag: "v0.6.0"'
     refute_includes gemfile, 'tag: "0.3.1"'
-    refute_match(/^gem ["']recording_studio_logs["']/, gemfile)
-    refute_match(/^gem ["']recording_studio_api["']/, gemfile)
+    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_api", tag: "v0.21.3"'
+    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_logs", tag: "v0.7.4"'
+    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_moveable", tag: "v4.1.1"'
+    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_icons", tag: "v0.2.1"'
+    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_admin", tag: "v2.12.1"'
+    assert_includes gemfile, 'gem "redis"'
     refute_match(/^gem ["']view_component["']/, gemfile)
 
     initializer = File.read(
@@ -189,7 +193,10 @@ class RecordingStudioXGemTest < Minitest::Test
     initializer_source = File.read(initializer_path)
 
     assert_includes initializer_source, "config.require_recordable_declarations = true"
-    assert_includes initializer_source, "config.recordable_types = [ \"Workspace\", \"Folder\", \"Page\" ]"
+    assert_includes initializer_source, '"Workspace"'
+    assert_includes initializer_source, '"Folder"'
+    assert_includes initializer_source, '"Page"'
+    assert_includes initializer_source, '"RecordingStudioApi::AdminApi"'
     refute_includes initializer_source, "config.include_children"
     refute_includes initializer_source, "config.features."
     refute_includes initializer_source, "v3"
