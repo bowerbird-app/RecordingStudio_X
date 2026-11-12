@@ -34,29 +34,13 @@ module RecordingStudio
           return unless defined?(RecordingStudioApi)
 
           RecordingStudioApi.configuration.each_api do |api|
-            ENDPOINTS.each { |endpoint| register_named_endpoint(endpoint, api) }
+            ENDPOINTS.each do |endpoint|
+              existing = RecordingStudioApi.registered_endpoint(endpoint[:name], api: api.name)
+              next if existing && existing.handler == endpoint[:handler]
+
+              RecordingStudioApi.register_endpoint(endpoint[:name], api: api.name, **endpoint.except(:name))
+            end
           end
-        end
-
-        private
-
-        def register_named_endpoint(endpoint, api)
-          existing = RecordingStudioApi.registered_endpoint(endpoint[:name], api: api.name)
-          if existing
-            return if our_handler?(existing.handler, endpoint[:handler])
-
-            raise RecordingStudioApi::ConfigurationError,
-                  "API endpoint #{endpoint[:name]} is already registered with a different handler"
-          end
-
-          RecordingStudioApi.register_endpoint(endpoint[:name], api: api.name, **endpoint.except(:name))
-        end
-
-        def our_handler?(existing, handler)
-          return true if existing == handler
-          return false unless existing.respond_to?(:name) && handler.respond_to?(:name)
-
-          existing.name.present? && existing.name == handler.name
         end
       end
     end

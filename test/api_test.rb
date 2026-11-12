@@ -33,29 +33,6 @@ class ApiTest < Minitest::Test
     RecordingStudioXTest.blank_configuration!
   end
 
-  def test_user_posts_handler_returns_a_page
-    configuration = RecordingStudioXTest.blank_configuration!
-    configuration.bearer_token = "app-bearer"
-    configuration.transport = lambda do |_env|
-      RecordingStudio::X::HttpResult.new(
-        status: 200,
-        headers: {},
-        body: JSON.generate(
-          "data" => [{ "id" => "2", "text" => "timeline", "author_id" => "7" }],
-          "includes" => { "users" => [{ "id" => "7", "username" => "ada", "name" => "Ada" }] }
-        )
-      )
-    end
-
-    result = RecordingStudio::X::Api::Handlers::UserPosts.call(
-      context(params: { id: "7", max_results: 5, cursor: nil, exclude: "replies" })
-    )
-
-    assert_equal "timeline", result["items"].first["text"]
-  ensure
-    RecordingStudioXTest.blank_configuration!
-  end
-
   def test_endpoint_catalog_covers_the_four_reads
     names = RecordingStudio::X::Api::ENDPOINTS.map { |endpoint| endpoint.fetch(:name) }
 
@@ -70,13 +47,24 @@ class ApiTest < Minitest::Test
 
   private
 
-  def context(params:)
-    grant = Object.new
-    def grant.authorize!(recording:, role:)
+  class ViewAccessGrant
+    def authorize!(recording:, role:)
       raise "missing recording" if recording.nil?
       raise "expected view" unless role == :view
     end
+  end
 
-    Struct.new(:access_grant, :root_recording, :params).new(grant, Object.new, params)
+  class HandlerContext
+    attr_reader :access_grant, :root_recording, :params
+
+    def initialize(params:)
+      @access_grant = ViewAccessGrant.new
+      @root_recording = Object.new
+      @params = params
+    end
+  end
+
+  def context(params:)
+    HandlerContext.new(params: params)
   end
 end

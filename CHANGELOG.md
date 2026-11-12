@@ -9,8 +9,8 @@
   `x_search`, `x_get_post`, `x_get_user`, and `x_get_user_posts`. They wrap
   `RecordingStudio::X.search`, `.post`, `.user`, and `.user_posts`. MCP advertises
   registered endpoints on its own; this gem does not add MCP tools. A second
-  register of the same handler is skipped. A different handler at that name
-  raises `RecordingStudioApi::ConfigurationError`. OpenAPI summaries are type-first
+  register of the same handler is skipped. A foreign handler is left for
+  Recording Studio API to reject. OpenAPI summaries are type-first
   (`X - Search posts`).
 - Dummy host mounts Recording Studio API `v0.21.3` in development and test, with the
   companion pins that API needs to boot.

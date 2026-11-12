@@ -188,8 +188,8 @@ each named API. They are thin wrappers over `RecordingStudio::X.search`,
 `.post`, `.user`, and `.user_posts`. Authorization is the request
 `AccessGrant` at `:view` on the root recording. This gem does not depend on
 Recording Studio API at runtime. OpenAPI summaries are type-first, for example
-`X - Search posts`. A later register of the same handler is skipped. A different
-handler at that name raises `RecordingStudioApi::ConfigurationError`.
+`X - Search posts`. A later register of the same handler is skipped. A foreign
+handler is left for Recording Studio API to reject.
 
 | Endpoint | Path | Domain method |
 | --- | --- | --- |

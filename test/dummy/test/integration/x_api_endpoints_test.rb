@@ -179,20 +179,6 @@ class XApiEndpointsTest < ActionDispatch::IntegrationTest
                  RecordingStudioApi.registered_endpoint(:x_search).handler
   end
 
-  test "register! raises ConfigurationError when a foreign handler owns the name" do
-    endpoint = RecordingStudioApi.registered_endpoint(:x_search)
-    original = endpoint.handler
-    endpoint.instance_variable_set(:@handler, Object.new)
-
-    error = assert_raises(RecordingStudioApi::ConfigurationError) do
-      RecordingStudio::X::Api.register!
-    end
-
-    assert_match(/already registered with a different handler/, error.message)
-  ensure
-    endpoint&.instance_variable_set(:@handler, original)
-  end
-
   private
 
   def bearer_headers(token)
