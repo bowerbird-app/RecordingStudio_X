@@ -21,6 +21,7 @@ require "recording_studio_x/diagnostics"
 require "recording_studio_x/ai_tools"
 require "recording_studio_x/api"
 require "recording_studio_x/engine"
+require "recording_studio_x/engine_api"
 
 module RecordingStudio
   module X

@@ -83,7 +83,9 @@ module RecordingStudio
           applied[extension] = true
         end
 
-        def extension_keys_for(target) = [target.name, target.name&.demodulize].compact.uniq.map(&:to_sym)
+        def extension_keys_for(target)
+          [target.name, target.name&.demodulize].compact.uniq.map(&:to_sym)
+        end
       end
 
       initializer "recording_studio_x.before_initialize", before: "recording_studio_x.load_config" do |_app|
@@ -103,7 +105,6 @@ module RecordingStudio
       initializer "recording_studio_x.prepare" do
         config.to_prepare do
           AiTools.register!
-          Api.register!
           Oauth.install_strategy!
         end
       end

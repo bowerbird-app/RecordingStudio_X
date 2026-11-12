@@ -10,7 +10,3 @@ RecordingStudioApi.configure do |config|
   config.rate_limit_fail_closed = false
   config.api_management_authorization_required = false
 end
-
-Rails.application.config.to_prepare do
-  RecordingStudioApi::AdminApi
-end

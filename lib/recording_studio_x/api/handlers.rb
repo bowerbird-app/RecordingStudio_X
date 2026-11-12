@@ -20,8 +20,6 @@ module RecordingStudio
         end
 
         def invalid_input(error)
-          return error unless defined?(RecordingStudioApi::InvalidActionInputError)
-
           RecordingStudioApi::InvalidActionInputError.new(error.message)
         end
 

@@ -42,11 +42,20 @@ class ApiTest < Minitest::Test
   end
 
   def test_user_handler_rejects_missing_identifiers_as_invalid_request
+    created = !defined?(RecordingStudioApi)
+    if created
+      api = Module.new
+      api.const_set(:InvalidActionInputError, Class.new(RecordingStudio::X::InvalidRequestError))
+      Object.const_set(:RecordingStudioApi, api)
+    end
+
     error = assert_raises(RecordingStudio::X::InvalidRequestError) do
       RecordingStudio::X::Api::Handlers::User.call(context(params: { username: nil, id: nil }))
     end
 
     assert_match(/id or a username/, error.message)
+  ensure
+    Object.send(:remove_const, :RecordingStudioApi) if created
   end
 
   def test_user_posts_handler_returns_a_page
