@@ -14,16 +14,15 @@ RecordingStudio.configure do |config|
   # Actor resolver for events when no actor is explicitly supplied
   config.actor = -> { Current.actor }
 
-  # Recording Studio 6.5+ fails closed unless a write authorizer is set.
-  # Access grant/bootstrap writes go through Accessible's AccessCreationContext
-  # (same path as grant_access / bootstrap_owner_access!), not a logged-in check.
-  # Other writes need :edit on the root. AccessCreationContext must not open
-  # Folder/Page writes during grant-creation.
+  # Recording Studio 7 fails closed unless a write authorizer is set.
+  # A new root is authorized with root_recording nil. A persisted User or API
+  # client may create it. Access grant/bootstrap writes go through Accessible's
+  # AccessCreationContext. Other writes need :edit on the root.
   config.authorize_write = lambda { |actor:, root_recording:, recordable:, **|
     next false unless defined?(RecordingStudioAccessible)
     # Token provisioning writes as RecordingStudioApi::ApiClient, so that actor must pass this gate.
     next false unless (actor.is_a?(User) || (defined?(RecordingStudioApi) && actor.is_a?(RecordingStudioApi::ApiClient))) && actor.persisted?
-    next false unless root_recording
+    next true if root_recording.nil?
 
     if defined?(RecordingStudio::Access) && recordable.is_a?(RecordingStudio::Access)
       next true if RecordingStudioAccessible::AccessCreationContext.allowed?

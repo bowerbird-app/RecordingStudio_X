@@ -1,5 +1,29 @@
 # Upgrading RecordingStudio::X
 
+## Upgrading to 0.5.0
+
+`0.5.0` requires Recording Studio `>= 7.0`, `< 8.0`. Update the host dependency
+to `recording_studio_x` `~> 0.5.0`.
+
+1. No migrations in this gem. Copy core migration
+   `20261114090000_add_root_recording_id_to_recording_studio_events` if
+   `recording_studio_events.root_recording_id` is missing.
+2. X read, OAuth, identity, and AI tool contracts stay the same.
+3. `RecordingStudio.root_recording_for` only finds a root. Create one with
+   `RecordingStudio.create_root_recording!(recordable, actor:)`.
+4. Keep `config.authorize_write`. A new root is authorized with
+   `root_recording` nil. Do not set `allow_unauthorized_writes`.
+5. This repository’s dummy host pins Recording Studio `v7.0.0`, FlatPack
+   `v0.1.376`, Accessible `v0.44.0`, Trashable `v0.17.0`, Metrics `v0.9.0`,
+   Cache `v0.6.3`, and Root Switchable `v0.16.0`. Development and test also
+   pin API `v0.24.0`, Logs `v0.8.0`, Moveable `v5.0.0`, Icons `v0.2.1`, and
+   Admin `v2.16.0`. Puma is `8.1.0`. The dummy pins `msgpack` `>= 1.8.7`.
+6. Dummy seeds use `Recording.kept`. Trashable 0.17 removed `kept_sql`.
+   The dummy does not mount Admin, so it does not set
+   `access_recording_resolver`.
+
+If you are still on `0.4.0` or older, complete that release's notes first.
+
 ## Upgrading to 0.4.0
 
 `0.4.0` exposes the four application X reads on Recording Studio API. Update the
