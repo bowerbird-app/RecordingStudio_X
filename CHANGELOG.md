@@ -2,6 +2,20 @@
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-11-15
+
+### Changed
+- Require `recording_studio` `>= 7.0`, `< 8.0`. The root and dummy bundles pin Recording Studio tag `v7.0.0` and FlatPack tag `v0.1.376`.
+- Dummy companion pins: Accessible `v0.44.0`, Trashable `v0.17.0`, Metrics `v0.9.0`, Cache `v0.6.3`, Root Switchable `v0.16.0`. Development and test pin API `v0.24.0`, Logs `v0.8.0`, Moveable `v5.0.0`, Icons `v0.2.1`, and Admin `v2.16.0`.
+- Puma is `8.1.0`. The dummy pins `msgpack` `>= 1.8.7`.
+- Seeds and tests that created a root call `create_root_recording!(recordable, actor:)`. Lookups stay on `root_recording_for`.
+- The dummy `authorize_write` still requires Accessible `:edit` on the root (or `:admin` for Access rows). A persisted User or API client may create a root, where `root_recording` is nil.
+- Dummy seeds use `Recording.kept`. Trashable 0.17 removed `kept_sql`.
+- The dummy copies core migration `20261114090000_add_root_recording_id_to_recording_studio_events`.
+
+### Upgrade notes
+- See `UPGRADING.md`. Hosts must run Recording Studio `>= 7.0`, `< 8.0`. Create roots with `create_root_recording!`. `root_recording_for` only finds an existing root.
+
 ## [0.4.0] - 2026-11-12
 
 ### Added
@@ -86,7 +100,8 @@
 * The dummy home search can limit results to a date range and order them by newest or best match. Dates inside the last 7 days use recent search. Older dates use full-archive search.
 * The engine application controller lives at `app/controllers/recording_studio/x` so eager load matches `RecordingStudio::X`.
 
-[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_X/compare/v0.4.0...HEAD
+[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_X/compare/v0.5.0...HEAD
+[0.5.0]: https://github.com/bowerbird-app/RecordingStudio_X/releases/tag/v0.5.0
 [0.4.0]: https://github.com/bowerbird-app/RecordingStudio_X/releases/tag/v0.4.0
 [0.3.0]: https://github.com/bowerbird-app/RecordingStudio_X/releases/tag/v0.3.0
 [0.2.0]: https://github.com/bowerbird-app/RecordingStudio_X/releases/tag/v0.2.0

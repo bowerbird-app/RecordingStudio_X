@@ -79,7 +79,7 @@ class DocsControllerTest < ActionDispatch::IntegrationTest
 
   test "recordings tree page renders successfully" do
     workspace = Workspace.create!(name: "Tree Workspace")
-    root_recording = RecordingStudio.root_recording_for(workspace)
+    root_recording = RecordingStudio.create_root_recording!(workspace, actor: @user)
     bootstrap_owner!(root_recording)
     folder = Folder.create!(name: "Reference")
     folder_recording = record_child(folder, root_recording, root_recording)
@@ -104,11 +104,11 @@ class DocsControllerTest < ActionDispatch::IntegrationTest
 
   test "recordings tree hides recordings the actor cannot access" do
     visible = Workspace.create!(name: "Visible Tree Workspace")
-    visible_root = RecordingStudio.root_recording_for(visible)
+    visible_root = RecordingStudio.create_root_recording!(visible, actor: @user)
     bootstrap_owner!(visible_root)
 
     hidden = Workspace.create!(name: "Hidden Tree Workspace")
-    RecordingStudio.root_recording_for(hidden)
+    RecordingStudio.create_root_recording!(hidden, actor: @user)
 
     get docs_recordings_tree_path
 
@@ -118,7 +118,9 @@ class DocsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "recordings tree is empty when the actor has no grants" do
-    RecordingStudio.root_recording_for(Workspace.create!(name: "Orphan Tree Workspace"))
+    RecordingStudio.create_root_recording!(
+      Workspace.create!(name: "Orphan Tree Workspace"), actor: @user
+    )
 
     get docs_recordings_tree_path
 
@@ -128,7 +130,9 @@ class DocsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "recordable types counts fail closed when the actor has no grants" do
-    RecordingStudio.root_recording_for(Workspace.create!(name: "Orphan Count Workspace"))
+    RecordingStudio.create_root_recording!(
+      Workspace.create!(name: "Orphan Count Workspace"), actor: @user
+    )
     Folder.create!(name: "Orphan Count Folder")
 
     get docs_recordable_types_path
@@ -180,13 +184,15 @@ class DocsControllerTest < ActionDispatch::IntegrationTest
     folders_before = accessible_type_recordings("Folder").distinct.count(:recordable_id)
 
     workspace = Workspace.create!(name: "Counted Workspace")
-    root_recording = RecordingStudio.root_recording_for(workspace)
+    root_recording = RecordingStudio.create_root_recording!(workspace, actor: @user)
     bootstrap_owner!(root_recording)
     folder = Folder.create!(name: "Counted Folder")
     record_child(folder, root_recording, root_recording)
 
     2.times do
-      RecordingStudio.root_recording_for(Workspace.create!(name: "Counted Workspace #{SecureRandom.hex(4)}"))
+      RecordingStudio.create_root_recording!(
+        Workspace.create!(name: "Counted Workspace #{SecureRandom.hex(4)}"), actor: @user
+      )
     end
 
     {

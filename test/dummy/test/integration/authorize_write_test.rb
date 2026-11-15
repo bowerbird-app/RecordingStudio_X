@@ -12,6 +12,16 @@ class AuthorizeWriteTest < ActiveSupport::TestCase
     assert_includes initializer, "recordable.is_a?(RecordingStudio::Access)"
     refute_match(/authorize_write\s*=\s*->\(actor:, \*\*\) \{ actor\.present\? \}/, initializer)
     refute_includes initializer, "allow_unauthorized_writes = true"
+    assert_includes initializer, "root_recording.nil?"
+  end
+
+  test "a persisted actor may create a root and a blank actor may not" do
+    authorizer = RecordingStudio.configuration.authorize_write
+    actor = write_probe_user
+    workspace = Workspace.new(name: "New root #{SecureRandom.hex(4)}")
+
+    assert authorizer.call(actor: actor, root_recording: nil, recordable: workspace)
+    refute authorizer.call(actor: nil, root_recording: nil, recordable: workspace)
   end
 
   test "dummy authorize_write requires Accessible edit on the root for folders" do
@@ -20,8 +30,9 @@ class AuthorizeWriteTest < ActiveSupport::TestCase
     refute_nil authorizer
 
     actor = write_probe_user
-    root_recording = RecordingStudio.root_recording_for(
-      Workspace.create!(name: "Write policy #{SecureRandom.hex(4)}")
+    root_recording = RecordingStudio.create_root_recording!(
+      Workspace.create!(name: "Write policy #{SecureRandom.hex(4)}"),
+      actor: actor
     )
     folder = Folder.new(name: "Write policy folder")
 
@@ -39,8 +50,9 @@ class AuthorizeWriteTest < ActiveSupport::TestCase
 
   test "AccessCreationContext does not let a no-grant actor record a Folder" do
     actor = write_probe_user
-    root_recording = RecordingStudio.root_recording_for(
-      Workspace.create!(name: "Probe workspace #{SecureRandom.hex(4)}")
+    root_recording = RecordingStudio.create_root_recording!(
+      Workspace.create!(name: "Probe workspace #{SecureRandom.hex(4)}"),
+      actor: actor
     )
     folder = Folder.new(name: "Probe folder")
 
@@ -59,8 +71,9 @@ class AuthorizeWriteTest < ActiveSupport::TestCase
 
   test "bootstrap_owner_access still records Access through AccessCreationContext" do
     actor = write_probe_user
-    root_recording = RecordingStudio.root_recording_for(
-      Workspace.create!(name: "Bootstrap workspace #{SecureRandom.hex(4)}")
+    root_recording = RecordingStudio.create_root_recording!(
+      Workspace.create!(name: "Bootstrap workspace #{SecureRandom.hex(4)}"),
+      actor: actor
     )
 
     result = RecordingStudioAccessible.bootstrap_owner_access!(recording: root_recording, actor: actor)
