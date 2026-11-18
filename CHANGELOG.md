@@ -8,7 +8,8 @@
 - Root and dummy bundles pin Recording Studio tag `v7.7.1` and FlatPack tag `v0.1.378`.
 - Dummy companion pins: Accessible `v0.54.0`, Trashable `v1.2.0`, Metrics `v0.9.1`, Cache `v0.7.0`, Root Switchable `v0.16.0`. Development and test pin API `v1.15.0`, Logs `v0.8.1`, Moveable `v6.0.1`, Icons `v0.4.1`, and Admin `v2.19.0`.
 - The dummy adds `config/recording_studio_api.yml` with `shared: {}`. Recording Studio API 1.12 and newer raises at boot when that file is missing.
-- The dummy Recording Studio initializer no longer adds `RecordingStudioApi::AdminApi` to `recordable_types`. API 1.15 declares that type only when an admin root exists.
+- The dummy Recording Studio initializer no longer adds `RecordingStudioApi::AdminApi` to `recordable_types`. API 1.1.1 declares that type only when an admin root exists.
+- The dummy copies API `v1.15.0` migration `20261117000024_add_owner_to_recording_studio_api_api_clients`. Hosts still run the Recording Studio 7.5 and 7.7 root-index migrations. This dummy does not copy those.
 
 ### Upgrade notes
 - The gemspec stays `recording_studio` `>= 7.0`, `< 8.0`. Update the host dependency to `recording_studio_x` `~> 0.5.1`. API `v1.15.0` and Accessible `v0.54.0` need Recording Studio `>= 7.7.0`. See `UPGRADING.md`.

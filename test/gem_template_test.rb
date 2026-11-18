@@ -138,6 +138,22 @@ class RecordingStudioXGemTest < Minitest::Test
     assert_includes rules_migration, "create_table :recording_studio_access_rules"
   end
 
+  def test_dummy_schema_includes_api_client_owner
+    schema = File.read(File.expand_path("dummy/db/schema.rb", __dir__))
+    migration = File.read(
+      File.expand_path(
+        "dummy/db/migrate/20261117000024_add_owner_to_recording_studio_api_api_clients.rb",
+        __dir__
+      )
+    )
+
+    assert_includes schema, 't.string "owner_type"'
+    assert_includes schema, 't.uuid "owner_id"'
+    assert_includes schema, 'name: "index_rs_api_clients_on_owner"'
+    assert_includes migration, "add_column :recording_studio_api_api_clients, :owner_type, :string"
+    assert_includes migration, "add_column :recording_studio_api_api_clients, :owner_id, :uuid"
+  end
+
   def test_template_does_not_ship_copied_core_hooks_or_base_service
     refute File.exist?(File.expand_path("../lib/recording_studio_x/hooks.rb", __dir__))
     refute File.exist?(File.expand_path("../lib/recording_studio_x/services/base_service.rb", __dir__))
