@@ -15,7 +15,7 @@ module RecordingStudio
 
         def self.post
           endpoint(name: :x_get_post, path: "x/posts/:id", handler: Handlers::Post,
-                   openapi: post_openapi, fields: post_fields)
+                   openapi: post_openapi, fields: post_fields, scope_id: false)
         end
 
         def self.user
@@ -26,15 +26,17 @@ module RecordingStudio
         def self.user_posts
           endpoint(
             name: :x_get_user_posts, path: "x/users/:id/posts", handler: Handlers::UserPosts,
-            openapi: user_posts_openapi, fields: user_posts_fields
+            openapi: user_posts_openapi, fields: user_posts_fields, scope_id: false
           )
         end
 
-        def self.endpoint(name:, path:, handler:, openapi:, fields:, http_verb: :get)
-          {
+        def self.endpoint(name:, path:, handler:, openapi:, fields:, http_verb: :get, scope_id: nil)
+          row = {
             name: name, http_verb: http_verb, path: path, handler: handler, openapi: openapi,
             input_contract: { reject_unknown: false, fields: fields }
           }
+          row[:scope_id] = scope_id unless scope_id.nil?
+          row
         end
 
         def self.search_openapi

@@ -2,6 +2,19 @@
 
 ## [Unreleased]
 
+## [0.6.0] - 2026-11-18
+
+### Changed
+- `x_get_post` and `x_get_user_posts` pass `scope_id: false`. Those path ids are X post and user ids.
+- Root and dummy bundles pin Recording Studio tag `v7.7.1` and FlatPack tag `v0.1.378`.
+- Dummy companion pins: Accessible `v0.54.0`, Trashable `v1.2.0`, Metrics `v0.9.1`, Cache `v0.7.0`, Root Switchable `v0.16.0`. Development and test pin API `v1.15.0`, Logs `v0.8.1`, Moveable `v6.0.1`, Icons `v0.4.1`, and Admin `v2.19.0`.
+- The dummy adds `config/recording_studio_api.yml` with `shared: {}`. Recording Studio API 1.12 and newer raises at boot when that file is missing.
+- The dummy Recording Studio initializer no longer adds `RecordingStudioApi::AdminApi` to `recordable_types`. API 1.1.1 declares that type only when an admin root exists.
+- The dummy copies API `v1.15.0` migration `20261117000024_add_owner_to_recording_studio_api_api_clients`. Hosts moving to Recording Studio 7.7 must run the 7.4, 7.5, and 7.7 root-index migrations. Only this repository's dummy leaves those three out.
+
+### Upgrade notes
+- The gemspec stays `recording_studio` `>= 7.0`, `< 8.0`. Update the host dependency to `recording_studio_x` `~> 0.6.0`. Hosts that load the X API endpoints need `recording_studio_api` `>= 0.26` (`~> 0.26` or a later compatible constraint, not an exact pin). API `v1.15.0` and Accessible `v0.54.0` need Recording Studio `>= 7.7.0`. See `UPGRADING.md`.
+
 ## [0.5.0] - 2026-11-15
 
 ### Changed
@@ -100,7 +113,8 @@
 * The dummy home search can limit results to a date range and order them by newest or best match. Dates inside the last 7 days use recent search. Older dates use full-archive search.
 * The engine application controller lives at `app/controllers/recording_studio/x` so eager load matches `RecordingStudio::X`.
 
-[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_X/compare/v0.5.0...HEAD
+[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_X/compare/v0.6.0...HEAD
+[0.6.0]: https://github.com/bowerbird-app/RecordingStudio_X/compare/v0.5.0...v0.6.0
 [0.5.0]: https://github.com/bowerbird-app/RecordingStudio_X/releases/tag/v0.5.0
 [0.4.0]: https://github.com/bowerbird-app/RecordingStudio_X/releases/tag/v0.4.0
 [0.3.0]: https://github.com/bowerbird-app/RecordingStudio_X/releases/tag/v0.3.0

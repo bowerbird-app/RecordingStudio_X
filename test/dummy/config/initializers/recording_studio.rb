@@ -3,7 +3,8 @@
 RecordingStudio.configure do |config|
   # Registered delegated_type recordables (strings or classes)
   config.recordable_types = [ "Workspace", "Folder", "Page" ]
-  config.recordable_types += ["RecordingStudioApi::AdminApi"] if defined?(RecordingStudioApi)
+  # API registers AdminApi only after an admin root exists. Adding it here
+  # with no admin root fails the recordable declaration check.
 
   # Require each configured ActiveRecord type to call recording_studio_recordable.
   config.require_recordable_declarations = true

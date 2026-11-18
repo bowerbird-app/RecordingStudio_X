@@ -1,5 +1,36 @@
 # Upgrading RecordingStudio::X
 
+## Upgrading to 0.6.0
+
+`0.6.0` keeps the gemspec at Recording Studio `>= 7.0`, `< 8.0`. Update the
+host dependency to `recording_studio_x` `~> 0.6.0`.
+
+1. No migrations in this gem. Hosts moving to Recording Studio 7.7 must run
+   the 7.4, 7.5, and 7.7 root-index migrations
+   (`add_recording_studio_recordings_root_type_creation_index`,
+   `enforce_recording_studio_recording_root_invariant`,
+   `replace_recording_studio_recordings_root_index`). Only this repository’s
+   dummy app leaves those three out. Hosts that load API 1.4 or newer also
+   need `add_owner_to_recording_studio_api_api_clients`. The dummy copies that
+   one.
+2. `x_get_post` and `x_get_user_posts` pass `scope_id: false`. The `:id` on
+   those paths is an X post id or X user id. Hosts that load these endpoints
+   need `recording_studio_api` `>= 0.26`. Use a pessimistic constraint such as
+   `~> 0.26` or a later compatible range. Do not pin an exact version.
+3. X read, OAuth, identity, and AI tool contracts stay the same.
+4. This repository’s dummy host pins Recording Studio `v7.7.1`, FlatPack
+   `v0.1.378`, Accessible `v0.54.0`, Trashable `v1.2.0`, Metrics `v0.9.1`,
+   Cache `v0.7.0`, and Root Switchable `v0.16.0`. Development and test also
+   pin API `v1.15.0`, Logs `v0.8.1`, Moveable `v6.0.1`, Icons `v0.4.1`, and
+   Admin `v2.19.0`.
+5. Hosts that load Recording Studio API 1.12 or newer need
+   `config/recording_studio_api.yml`. The dummy file is minimal (`shared: {}`).
+   API `v1.15.0` and Accessible `v0.54.0` need Recording Studio `>= 7.7.0`.
+6. Do not add `RecordingStudioApi::AdminApi` to `recordable_types` unless an
+   admin root exists. API 1.1.1 declares that type only in that case.
+
+If you are still on `0.5.0` or older, complete that release's notes first.
+
 ## Upgrading to 0.5.0
 
 `0.5.0` requires Recording Studio `>= 7.0`, `< 8.0`. Update the host dependency

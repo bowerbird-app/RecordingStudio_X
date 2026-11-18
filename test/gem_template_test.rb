@@ -4,7 +4,7 @@ require "test_helper"
 
 class RecordingStudioXGemTest < Minitest::Test
   def test_version_matches_release
-    assert_equal "0.5.0", ::RecordingStudio::X::VERSION
+    assert_equal "0.6.0", ::RecordingStudio::X::VERSION
   end
 
   def test_engine_exists
@@ -46,13 +46,13 @@ class RecordingStudioXGemTest < Minitest::Test
   def test_dummy_gemfile_pins_verified_7x_github_tags
     gemfile = File.read(File.expand_path("dummy/Gemfile", __dir__))
 
-    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio", tag: "v7.0.0"'
-    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_accessible", tag: "v0.44.0"'
-    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_trashable", tag: "v0.17.0"'
+    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio", tag: "v7.7.1"'
+    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_accessible", tag: "v0.54.0"'
+    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_trashable", tag: "v1.2.0"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_root_switchable", tag: "v0.16.0"'
-    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_metrics", tag: "v0.9.0"'
-    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_cache", tag: "v0.6.3"'
-    assert_includes gemfile, 'github: "bowerbird-app/flatpack", tag: "v0.1.376"'
+    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_metrics", tag: "v0.9.1"'
+    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_cache", tag: "v0.7.0"'
+    assert_includes gemfile, 'github: "bowerbird-app/flatpack", tag: "v0.1.378"'
     assert_includes gemfile, 'gem "puma", "8.1.0"'
     assert_includes gemfile, 'gem "msgpack", ">= 1.8.7"'
     refute_includes gemfile, "recording_studio/v3.0.0"
@@ -62,11 +62,11 @@ class RecordingStudioXGemTest < Minitest::Test
     refute_includes gemfile, 'tag: "v0.1.133"'
     refute_includes gemfile, 'tag: "v0.6.0"'
     refute_includes gemfile, 'tag: "0.3.1"'
-    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_api", tag: "v0.24.0"'
-    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_logs", tag: "v0.8.0"'
-    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_moveable", tag: "v5.0.0"'
-    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_icons", tag: "v0.2.1"'
-    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_admin", tag: "v2.16.0"'
+    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_api", tag: "v1.15.0"'
+    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_logs", tag: "v0.8.1"'
+    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_moveable", tag: "v6.0.1"'
+    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_icons", tag: "v0.4.1"'
+    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_admin", tag: "v2.19.0"'
     assert_includes gemfile, 'gem "redis"'
     refute_match(/^gem ["']view_component["']/, gemfile)
 
@@ -76,8 +76,8 @@ class RecordingStudioXGemTest < Minitest::Test
     refute_includes initializer, "config.layout ="
 
     root_gemfile = File.read(File.expand_path("../Gemfile", __dir__))
-    assert_includes root_gemfile, 'github: "bowerbird-app/RecordingStudio", tag: "v7.0.0"'
-    assert_includes root_gemfile, 'github: "bowerbird-app/flatpack", tag: "v0.1.376"'
+    assert_includes root_gemfile, 'github: "bowerbird-app/RecordingStudio", tag: "v7.7.1"'
+    assert_includes root_gemfile, 'github: "bowerbird-app/flatpack", tag: "v0.1.378"'
     assert_includes root_gemfile, 'gem "puma", "8.1.0"'
   end
 
@@ -136,6 +136,32 @@ class RecordingStudioXGemTest < Minitest::Test
     assert_includes schema, 't.string "allowed_audiences", default: [], null: false, array: true'
     assert_includes constraints_migration, "create_table :recording_studio_access_constraints"
     assert_includes rules_migration, "create_table :recording_studio_access_rules"
+  end
+
+  def test_dummy_schema_includes_api_client_owner
+    schema = File.read(File.expand_path("dummy/db/schema.rb", __dir__))
+    migration = File.read(
+      File.expand_path(
+        "dummy/db/migrate/20261117000024_add_owner_to_recording_studio_api_api_clients.rb",
+        __dir__
+      )
+    )
+
+    assert_includes schema, 't.string "owner_type"'
+    assert_includes schema, 't.uuid "owner_id"'
+    assert_includes schema, 'name: "index_rs_api_clients_on_owner"'
+    assert_includes migration, "add_column :recording_studio_api_api_clients, :owner_type, :string"
+    assert_includes migration, "add_column :recording_studio_api_api_clients, :owner_id, :uuid"
+
+    migrate_dir = File.expand_path("dummy/db/migrate", __dir__)
+    names = Dir.children(migrate_dir)
+    refute(names.any? { |name| name.include?("root_type_creation_index") })
+    refute(names.any? { |name| name.include?("recording_root_invariant") })
+    refute(names.any? { |name| name.include?("replace_recording_studio_recordings_root_index") })
+
+    upgrading = File.read(File.expand_path("../UPGRADING.md", __dir__))
+    assert_includes upgrading, "Hosts moving to Recording Studio 7.7 must run"
+    assert_includes upgrading, "dummy app leaves those three out"
   end
 
   def test_template_does_not_ship_copied_core_hooks_or_base_service
@@ -197,8 +223,7 @@ class RecordingStudioXGemTest < Minitest::Test
 
     assert_includes initializer_source, "config.require_recordable_declarations = true"
     assert_includes initializer_source, "config.recordable_types = [ \"Workspace\", \"Folder\", \"Page\" ]"
-    assert_includes initializer_source,
-                    'config.recordable_types += ["RecordingStudioApi::AdminApi"] if defined?(RecordingStudioApi)'
+    refute_includes initializer_source, "RecordingStudioApi::AdminApi"
     refute_includes initializer_source, "config.include_children"
     refute_includes initializer_source, "config.features."
     refute_includes initializer_source, "v3"
@@ -220,6 +245,7 @@ class RecordingStudioXGemTest < Minitest::Test
     assert_includes readme, "RecordingStudio::X"
     assert_includes readme, "x_consumer_key"
     assert_includes readme, "search"
+    assert_includes readme, "recording_studio_api` `>= 0.26"
     refute_includes readme, "ExampleService"
     refute_includes readme, "x_bearer_token: \""
   end
