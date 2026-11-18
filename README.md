@@ -20,7 +20,7 @@ bin/rails generate recording_studio_x:install
 
 The generator adds a route and `config/initializers/recording_studio_x.rb`. It does not copy migrations. This gem does not store posts or users.
 
-This gem requires Recording Studio `>= 7.0`, `< 8.0`. The dummy host pins Recording Studio tag `v7.0.0`, FlatPack tag `v0.1.376`, Accessible `v0.44.0`, Trashable `v0.17.0`, Metrics `v0.9.0`, Cache `v0.6.3`, and Root Switchable `v0.16.0`. Development and test also mount Recording Studio API `v0.24.0` (Logs `v0.8.0`, Moveable `v5.0.0`, Icons `v0.2.1`, Admin `v2.16.0`, Redis `~> 5.3`). Dummy `/docs` pages list recordings the signed-in actor can reach through Accessible. See `UPGRADING.md` when moving a host from 6.x.
+This gem requires Recording Studio `>= 7.0`, `< 8.0`. The dummy host pins Recording Studio tag `v7.7.1`, FlatPack tag `v0.1.378`, Accessible `v0.54.0`, Trashable `v1.2.0`, Metrics `v0.9.1`, Cache `v0.7.0`, and Root Switchable `v0.16.0`. Development and test also mount Recording Studio API `v1.15.0` (Logs `v0.8.1`, Moveable `v6.0.1`, Icons `v0.4.1`, Admin `v2.19.0`, Redis `~> 5.3`). Dummy `/docs` pages list recordings the signed-in actor can reach through Accessible. See `UPGRADING.md` when moving a host from 6.x.
 
 ## Configuration
 
