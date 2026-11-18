@@ -4,7 +4,7 @@ require "test_helper"
 
 class RecordingStudioXGemTest < Minitest::Test
   def test_version_matches_release
-    assert_equal "0.5.1", ::RecordingStudio::X::VERSION
+    assert_equal "0.6.0", ::RecordingStudio::X::VERSION
   end
 
   def test_engine_exists
@@ -152,6 +152,16 @@ class RecordingStudioXGemTest < Minitest::Test
     assert_includes schema, 'name: "index_rs_api_clients_on_owner"'
     assert_includes migration, "add_column :recording_studio_api_api_clients, :owner_type, :string"
     assert_includes migration, "add_column :recording_studio_api_api_clients, :owner_id, :uuid"
+
+    migrate_dir = File.expand_path("dummy/db/migrate", __dir__)
+    names = Dir.children(migrate_dir)
+    refute(names.any? { |name| name.include?("root_type_creation_index") })
+    refute(names.any? { |name| name.include?("recording_root_invariant") })
+    refute(names.any? { |name| name.include?("replace_recording_studio_recordings_root_index") })
+
+    upgrading = File.read(File.expand_path("../UPGRADING.md", __dir__))
+    assert_includes upgrading, "Hosts moving to Recording Studio 7.7 must run"
+    assert_includes upgrading, "dummy app leaves those three out"
   end
 
   def test_template_does_not_ship_copied_core_hooks_or_base_service
@@ -235,6 +245,7 @@ class RecordingStudioXGemTest < Minitest::Test
     assert_includes readme, "RecordingStudio::X"
     assert_includes readme, "x_consumer_key"
     assert_includes readme, "search"
+    assert_includes readme, "recording_studio_api` `>= 0.26"
     refute_includes readme, "ExampleService"
     refute_includes readme, "x_bearer_token: \""
   end

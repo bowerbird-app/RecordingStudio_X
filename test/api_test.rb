@@ -37,6 +37,11 @@ class ApiTest < Minitest::Test
     names = RecordingStudio::X::Api::ENDPOINTS.map { |endpoint| endpoint.fetch(:name) }
 
     assert_equal %i[x_search x_get_post x_get_user x_get_user_posts], names
+    by_name = RecordingStudio::X::Api::ENDPOINTS.to_h { |endpoint| [endpoint.fetch(:name), endpoint] }
+    assert_equal false, by_name.fetch(:x_get_post).fetch(:scope_id)
+    assert_equal false, by_name.fetch(:x_get_user_posts).fetch(:scope_id)
+    refute by_name.fetch(:x_search).key?(:scope_id)
+    refute by_name.fetch(:x_get_user).key?(:scope_id)
     RecordingStudio::X::Api::ENDPOINTS.each do |endpoint|
       assert_equal false, endpoint.dig(:input_contract, :reject_unknown)
       assert_match(/\AX - /, endpoint.dig(:openapi, :summary))
